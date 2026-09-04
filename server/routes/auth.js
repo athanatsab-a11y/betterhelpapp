@@ -3,6 +3,7 @@ import { db } from '../db.js';
 import { hashPassword, checkPassword, issueToken, clearToken, requireAuth, publicUser } from '../auth.js';
 import { assignTherapist, rankTherapists } from '../matching.js';
 import { planPrice } from '../../shared/catalog.js';
+import { notify } from '../db.js';
 
 const router = Router();
 
@@ -42,6 +43,52 @@ router.post('/register', (req, res) => {
   res.status(201).json({ user: publicUser(user), matched });
 });
 
+// Therapists sign up themselves; the profile stays unlisted until an admin
+// reviews the credentials.
+router.post('/apply-therapist', (req, res) => {
+  const b = req.body || {};
+  const required = ['email', 'password', 'display_name', 'credentials', 'license_no'];
+  const missing = required.filter((k) => !String(b[k] || '').trim());
+  if (missing.length) return res.status(400).json({ error: 'Συμπλήρωσε όλα τα υποχρεωτικά πεδία' });
+  if (String(b.password).length < 8) return res.status(400).json({ error: 'Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες' });
+  if (!(b.specialties || []).length) return res.status(400).json({ error: 'Διάλεξε τουλάχιστον μία ειδίκευση' });
+  if (!(b.languages || []).length) return res.status(400).json({ error: 'Διάλεξε τουλάχιστον μία γλώσσα' });
+
+  const email = String(b.email).toLowerCase();
+  if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) {
+    return res.status(409).json({ error: 'Υπάρχει ήδη λογαριασμός με αυτό το email' });
+  }
+  if (db.prepare('SELECT 1 FROM therapists WHERE license_no = ?').get(b.license_no)) {
+    return res.status(409).json({ error: 'Ο αριθμός άδειας χρησιμοποιείται ήδη' });
+  }
+
+  const csv = (v) => (Array.isArray(v) ? v.join(',') : String(v || ''));
+  const info = db.prepare(
+    'INSERT INTO users (email, password_hash, role, display_name, nickname, phone) VALUES (?,?,?,?,?,?)'
+  ).run(email, hashPassword(b.password), 'therapist', b.display_name, b.display_name.split(' ')[0], b.phone || null);
+  const userId = info.lastInsertRowid;
+
+  db.prepare(`
+    INSERT INTO therapists (user_id, headline, bio, credentials, license_no, years_experience, gender,
+      languages, specialties, approaches, faith_based, lgbtq_friendly, rating, reviews_count,
+      accepting_clients, max_clients, avg_response_hours, status, applied_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,0,0,1,?,?, 'pending', datetime('now'))
+  `).run(
+    userId, b.headline || '', b.bio || '', b.credentials, b.license_no,
+    Number(b.years_experience) || 0, b.gender || null, csv(b.languages), csv(b.specialties),
+    csv(b.approaches), b.faith_based ? 1 : 0, b.lgbtq_friendly === false ? 0 : 1,
+    Number(b.max_clients) || 20, Number(b.avg_response_hours) || 12
+  );
+
+  for (const admin of db.prepare("SELECT id FROM users WHERE role = 'admin'").all()) {
+    notify(admin.id, 'Νέα αίτηση θεραπευτή', `${b.display_name} — ${b.credentials}`, '/admin');
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  issueToken(res, user);
+  res.status(201).json({ user: publicUser(user), status: 'pending' });
+});
+
 router.post('/login', (req, res) => {
   const { email, password } = req.body || {};
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(String(email || '').toLowerCase());
@@ -71,6 +118,10 @@ router.get('/me', (req, res) => {
   }
   if (user.role === 'therapist') {
     extra.therapist = db.prepare('SELECT * FROM therapists WHERE user_id = ?').get(user.id) || null;
+  }
+  if (user.role === 'client') {
+    const last = db.prepare('SELECT id, scores, risk_level, created_at FROM assessments WHERE user_id = ? ORDER BY id DESC').get(user.id);
+    extra.assessment = last ? { ...last, scores: JSON.parse(last.scores) } : null;
   }
   extra.unread_notifications = db.prepare('SELECT COUNT(*) c FROM notifications WHERE user_id = ? AND read_at IS NULL').get(user.id).c;
   res.json({ user, ...extra });

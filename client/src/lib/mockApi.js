@@ -3,7 +3,8 @@
 // server/routes/*, backed by in-memory state seeded from shared/seed-data.js —
 // so the real React app runs unchanged, with no server and no network.
 import { THERAPISTS, WORKSHEETS, REVIEW_BODIES, GROUPINARS } from '../../../shared/seed-data.js';
-import { questionnaireWithOptions, riskFromAnswers, SPECIALTIES, APPROACHES, PLANS, planPrice } from '../../../shared/catalog.js';
+import { questionnaireWithOptions, riskFromAnswers, SPECIALTIES, APPROACHES, PLANS, planPrice,
+  ASSESSMENT, FREQ_SCALE, scoreAssessment } from '../../../shared/catalog.js';
 import { scoreTherapists } from '../../../shared/matching-core.js';
 
 const now = () => new Date().toISOString();
@@ -17,7 +18,7 @@ const nextId = () => ++seq;
 const db = { users: [], therapists: [], intakes: [], matches: [], rooms: [], messages: [],
   availability: [], sessions: [], journal: [], worksheets: [], assignments: [],
   groupinars: [], registrations: [], subscriptions: [], payments: [], aid: [],
-  reviews: [], notifications: [] };
+  reviews: [], notifications: [], assessments: [] };
 
 let session = null; // currently signed-in user id
 
@@ -34,7 +35,7 @@ function seed() {
       faith_based: t.faith ? 1 : 0, lgbtq_friendly: t.lgbtq ?? 1, photo: null,
       rating: Math.round((4.4 + ((i * 7) % 6) / 10) * 10) / 10,
       reviews_count: 20 + ((i * 37) % 180), accepting_clients: 1, max_clients: 25,
-      avg_response_hours: t.resp,
+      avg_response_hours: t.resp, status: 'approved', applied_at: null, reviewed_at: null, review_note: null,
       bio: `Είμαι ${t.credentials.toLowerCase()} με ${t.years} χρόνια κλινικής εμπειρίας. ` +
         `Δουλεύω κυρίως με ${t.headline.toLowerCase()} και πιστεύω ότι η θεραπεία είναι μια συνεργασία: ` +
         'εσύ φέρνεις την εμπειρία σου, εγώ τα εργαλεία και το πλαίσιο ασφάλειας. ' +
@@ -117,6 +118,26 @@ function seed() {
     body: 'Η Δρ. Ελένη Παπαδοπούλου σου ανέθεσε: Ημερολόγιο Σκέψεων (CBT)',
     link: '/app/worksheets', read_at: null, created_at: now() });
 
+  const admin = { id: nextId(), email: 'admin@mindbridge.gr', password: 'password123', role: 'admin',
+    display_name: 'Διαχειριστής', nickname: 'Admin', timezone: 'Europe/Athens', created_at: now() };
+  db.users.push(admin);
+
+  // One application waiting for review, so the admin screen has something real.
+  const applicant = { id: nextId(), email: 'applicant@mindbridge.gr', password: 'password123', role: 'therapist',
+    display_name: 'Κατερίνα Βλάχου', nickname: 'Κατερίνα', phone: '+30 210 0000000',
+    timezone: 'Europe/Athens', created_at: now() };
+  db.users.push(applicant);
+  db.therapists.push({
+    id: db.therapists.length + 1, user_id: applicant.id, display_name: applicant.display_name,
+    headline: 'Άγχος και ψυχοσωματικά συμπτώματα',
+    bio: 'Εργάζομαι με ενήλικες που βιώνουν άγχος με σωματικές εκδηλώσεις. Εκπαίδευση σε CBT και τεχνικές χαλάρωσης.',
+    credentials: 'Ψυχολόγος, MSc Κλινική Ψυχολογία', license_no: 'GR-PSY-15320', years_experience: 6,
+    gender: 'female', languages: 'el,en', specialties: 'anxiety,stress,sleep', approaches: 'cbt,mindfulness',
+    faith_based: 0, lgbtq_friendly: 1, photo: null, rating: 0, reviews_count: 0, accepting_clients: 1,
+    max_clients: 18, avg_response_hours: 10, status: 'pending',
+    applied_at: new Date(Date.now() - 86400000).toISOString(), reviewed_at: null, review_note: null,
+  });
+
   // The demo opens inside the product, signed in as the member; the demo bar
   // switches to the therapist portal or out to the public site.
   session = demo.id;
@@ -133,7 +154,7 @@ const publicUser = (u) => (u ? { ...u, password: undefined } : null);
 const notify = (userId, title, body, link) =>
   db.notifications.push({ id: nextId(), user_id: userId, title, body, link, read_at: null, created_at: now() });
 
-const therapistRows = () => db.therapists.map((t) => ({
+const therapistRows = () => db.therapists.filter((t) => t.status === 'approved').map((t) => ({
   ...t, active_clients: db.matches.filter((m) => m.therapist_id === t.id && m.status === 'active').length,
 }));
 
@@ -231,6 +252,10 @@ function handle(method, path, body, query = {}) {
       } else extra.match = null;
     }
     if (me.role === 'therapist') extra.therapist = therapistOf(me.id) || null;
+    if (me.role === 'client') {
+      const last = [...db.assessments].reverse().find((a) => a.user_id === me.id);
+      extra.assessment = last ?? null;
+    }
     extra.unread_notifications = db.notifications.filter((n) => n.user_id === me.id && !n.read_at).length;
     return ok({ user: publicUser(me), ...extra });
   }
@@ -274,6 +299,87 @@ function handle(method, path, body, query = {}) {
     });
   }
 
+  if (path === '/auth/apply-therapist' && method === 'POST') {
+    const b = body || {};
+    const email = String(b.email || '').toLowerCase();
+    if (!email || !b.password || !b.display_name || !b.credentials || !b.license_no) {
+      return fail(400, 'Συμπλήρωσε όλα τα υποχρεωτικά πεδία');
+    }
+    if (String(b.password).length < 8) return fail(400, 'Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες');
+    if (!(b.specialties || []).length) return fail(400, 'Διάλεξε τουλάχιστον μία ειδίκευση');
+    if (!(b.languages || []).length) return fail(400, 'Διάλεξε τουλάχιστον μία γλώσσα');
+    if (db.users.some((u) => u.email === email)) return fail(409, 'Υπάρχει ήδη λογαριασμός με αυτό το email');
+    if (db.therapists.some((t) => t.license_no === b.license_no)) return fail(409, 'Ο αριθμός άδειας χρησιμοποιείται ήδη');
+
+    const u = { id: nextId(), email, password: b.password, role: 'therapist', display_name: b.display_name,
+      nickname: b.display_name.split(' ')[0], phone: b.phone || null, timezone: 'Europe/Athens', created_at: now() };
+    db.users.push(u);
+    db.therapists.push({
+      id: db.therapists.length + 1, user_id: u.id, display_name: u.display_name,
+      headline: b.headline || '', bio: b.bio || '', credentials: b.credentials, license_no: b.license_no,
+      years_experience: Number(b.years_experience) || 0, gender: b.gender || null,
+      languages: (b.languages || []).join(','), specialties: (b.specialties || []).join(','),
+      approaches: (b.approaches || []).join(','), faith_based: b.faith_based ? 1 : 0,
+      lgbtq_friendly: b.lgbtq_friendly === false ? 0 : 1, photo: null, rating: 0, reviews_count: 0,
+      accepting_clients: 1, max_clients: Number(b.max_clients) || 20,
+      avg_response_hours: Number(b.avg_response_hours) || 12, status: 'pending',
+      applied_at: now(), reviewed_at: null, review_note: null,
+    });
+    db.users.filter((x) => x.role === 'admin').forEach((a) =>
+      notify(a.id, 'Νέα αίτηση θεραπευτή', `${b.display_name} — ${b.credentials}`, '/admin'));
+    session = u.id;
+    return { status: 201, data: { user: publicUser(u), status: 'pending' } };
+  }
+
+  if (path === '/assessment' && method === 'GET') {
+    return auth((m) => {
+      const mine = db.assessments.filter((a) => a.user_id === m.id).slice().reverse();
+      return ok({ sections: ASSESSMENT, scale: FREQ_SCALE, history: mine, last: mine[0] ?? null });
+    });
+  }
+  if (path === '/assessment' && method === 'POST') {
+    return auth((m) => {
+      const answers = body?.answers || {};
+      const { scores, risk_level } = scoreAssessment(answers);
+      const a = { id: nextId(), user_id: m.id, answers, scores, risk_level, created_at: now() };
+      db.assessments.push(a);
+      const match = activeMatch(m.id);
+      if (match) {
+        const t = db.therapists.find((x) => x.id === match.therapist_id);
+        notify(t.user_id, 'Νέα αξιολόγηση γνωριμίας',
+          `${risk_level === 'crisis' ? '⚠️ Χρειάζεται άμεση προσοχή — ' : ''}${m.display_name}: διάθεση ${scores.mood.total}/27, άγχος ${scores.anxiety.total}/21`,
+          '/provider');
+      }
+      return { status: 201, data: { id: a.id, scores, risk_level, crisis: risk_level === 'crisis' } };
+    });
+  }
+
+  if (path === '/admin/applications') {
+    return auth((m) => {
+      if (m.role !== 'admin') return fail(403, 'Δεν επιτρέπεται');
+      const rank = { pending: 0, approved: 1, rejected: 2 };
+      const rows = db.therapists.map((t) => {
+        const u = db.users.find((x) => x.id === t.user_id);
+        return { ...t, display_name: u.display_name, email: u.email, phone: u.phone };
+      }).sort((a, b2) => rank[a.status] - rank[b2.status]);
+      return ok({ applications: rows });
+    });
+  }
+  if (seg[0] === 'admin' && seg[1] === 'applications' && method === 'POST') {
+    return auth((m) => {
+      if (m.role !== 'admin') return fail(403, 'Δεν επιτρέπεται');
+      const t = db.therapists.find((x) => x.id === Number(seg[2]));
+      if (!t) return fail(404, 'Δεν βρέθηκε');
+      if (!['approved', 'rejected'].includes(body?.decision)) return fail(400, 'Άγνωστη απόφαση');
+      t.status = body.decision; t.review_note = body.note || null; t.reviewed_at = now();
+      notify(t.user_id,
+        t.status === 'approved' ? 'Η αίτησή σου εγκρίθηκε' : 'Η αίτησή σου δεν εγκρίθηκε',
+        t.status === 'approved' ? 'Το προφίλ σου είναι πλέον ενεργό και μπορείς να δέχεσαι μέλη.'
+          : (body.note || 'Επικοινώνησε μαζί μας για διευκρινίσεις.'), '/provider');
+      return ok({ therapist: t });
+    });
+  }
+
   /* catalog + matching */
   if (path === '/questionnaire') return ok({ questions: questionnaireWithOptions(), specialties: SPECIALTIES, approaches: APPROACHES, plans: PLANS });
   if (path === '/plans') return ok({ plans: PLANS });
@@ -301,7 +407,7 @@ function handle(method, path, body, query = {}) {
   }
 
   if (path === '/therapists') {
-    let rows = db.therapists;
+    let rows = db.therapists.filter((t) => t.status === 'approved');
     if (query.specialty) rows = rows.filter((t) => csv(t.specialties).includes(query.specialty));
     if (query.language) rows = rows.filter((t) => csv(t.languages).includes(query.language));
     if (query.gender) rows = rows.filter((t) => t.gender === query.gender);
@@ -328,7 +434,7 @@ function handle(method, path, body, query = {}) {
     });
   }
   if (seg[0] === 'therapists' && seg.length === 2) {
-    const t = db.therapists.find((x) => x.id === Number(seg[1]));
+    const t = db.therapists.find((x) => x.id === Number(seg[1]) && x.status === 'approved');
     if (!t) return fail(404, 'Δεν βρέθηκε');
     return ok({ therapist: publicTherapist(t),
       reviews: db.reviews.filter((r) => r.therapist_id === t.id).slice(-20).reverse() });
@@ -572,6 +678,7 @@ function handle(method, path, body, query = {}) {
     return auth((m) => {
       if (m.role !== 'therapist') return fail(403, 'Δεν επιτρέπεται');
       const t = therapistOf(m.id);
+      if (t.status !== 'approved') return ok({ therapist: t, clients: [], upcoming: [] });
       const clients = db.matches.filter((x) => x.therapist_id === t.id && x.status === 'active').map((match) => {
         const c = db.users.find((u) => u.id === match.client_id);
         const room = roomOfMatch(match.id);
@@ -579,7 +686,8 @@ function handle(method, path, body, query = {}) {
         return { match_id: match.id, client_id: c.id, display_name: c.display_name, nickname: c.nickname,
           started_at: match.started_at, room_id: room.id,
           unread: db.messages.filter((x) => x.room_id === room.id && !x.read_at && x.sender_id !== m.id).length,
-          risk_level: intake?.risk_level ?? null };
+          risk_level: [...db.assessments].reverse().find((a) => a.user_id === c.id)?.risk_level ?? intake?.risk_level ?? null,
+          has_assessment: db.assessments.some((a) => a.user_id === c.id) ? 1 : 0 };
       });
       const upcoming = db.sessions.filter((s) => {
         const match = db.matches.find((x) => x.id === s.match_id);
@@ -630,6 +738,7 @@ function handle(method, path, body, query = {}) {
         client: { id: c.id, display_name: c.display_name, nickname: c.nickname, timezone: c.timezone, created_at: c.created_at },
         intake,
         journal: db.journal.filter((j) => j.user_id === c.id && j.shared_with_therapist).slice().reverse(),
+        assessments: db.assessments.filter((a) => a.user_id === c.id).slice().reverse(),
         worksheets: db.assignments.filter((a) => a.client_id === c.id).slice().reverse()
           .map((a) => ({ ...a, title: db.worksheets.find((w) => w.id === a.worksheet_id).title })),
       });

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, dt, euro, PLAN, PERIOD, SUB_STATUS } from '../../lib/api.js';
 import { useAuth } from '../../lib/auth.jsx';
 import { Avatar, Spinner, modalityLabel } from '../../components/common.jsx';
+import { ScoreCard } from './Assessment.jsx';
 
 const MOOD_FACES = ['😞', '🙁', '😐', '🙂', '😄'];
 
@@ -35,7 +36,7 @@ function MoodChart({ trend }) {
 }
 
 export default function Dashboard() {
-  const { user, match, subscription } = useAuth();
+  const { user, match, subscription, assessment } = useAuth();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -62,6 +63,18 @@ export default function Dashboard() {
           <h3>Δεν έχεις ακόμη θεραπευτή</h3>
           <p className="small muted">Ολοκλήρωσε το ερωτηματολόγιο για να σε αντιστοιχίσουμε.</p>
           <Link className="btn" to="/get-started">Βρες θεραπευτή</Link>
+        </div>
+      )}
+
+      {match && !assessment && (
+        <div className="card stack" style={{ borderColor: 'var(--teal-500)' }}>
+          <span className="pill">Επόμενο βήμα</span>
+          <h3>Ας σε γνωρίσουμε καλύτερα</h3>
+          <p className="small muted">
+            Ένα ερωτηματολόγιο 4 ενοτήτων για τη διάθεση, το άγχος, το ιστορικό και τους στόχους σου.
+            Ο θεραπευτής σου το διαβάζει πριν την πρώτη σας επαφή — κερδίζετε μια ολόκληρη συνεδρία.
+          </p>
+          <Link className="btn" to="/app/assessment">Ξεκίνα το ερωτηματολόγιο (5 λεπτά)</Link>
         </div>
       )}
 
@@ -123,6 +136,19 @@ export default function Dashboard() {
           ) : <Link className="btn small" to="/app/billing">Ενεργοποίησε</Link>}
         </div>
       </div>
+
+      {assessment && (
+        <div className="card stack">
+          <div className="spread">
+            <h3 style={{ marginBottom: 0 }}>Η αξιολόγηση γνωριμίας σου</h3>
+            <Link className="small" to="/app/assessment">Συμπλήρωσέ το ξανά →</Link>
+          </div>
+          <div className="grid grid-2">
+            {Object.entries(assessment.scores).map(([key, sc]) => <ScoreCard key={key} id={key} score={sc} />)}
+          </div>
+          <div className="small muted">Τελευταία συμπλήρωση: {dt(assessment.created_at)}</div>
+        </div>
+      )}
 
       {data.trend?.length > 0 && <MoodChart trend={data.trend} />}
     </div>

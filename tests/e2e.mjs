@@ -161,5 +161,85 @@ check('Προστασία endpoint χωρίς σύνδεση', anon.status === 4
 const clientOnProvider = await get('client', '/provider/overview');
 check('Πελάτης δεν βλέπει provider API', clientOnProvider.status === 403, String(clientOnProvider.status));
 
+// 12. Εγγραφή θεραπευτή, έγκριση από admin
+const licence = `GR-TEST-${Date.now() % 1000000}`;
+const applyEmail = `therapist_${Date.now()}@test.gr`;
+const apply = await post('applicant', '/auth/apply-therapist', {
+  email: applyEmail, password: 'password123', display_name: 'Δρ. Αιτών Δοκιμή',
+  credentials: 'Ψυχολόγος, MSc CBT', license_no: licence, years_experience: 5,
+  gender: 'female', languages: ['el'], specialties: ['anxiety'], approaches: ['cbt'],
+});
+check('Αίτηση θεραπευτή', apply.status === 201 && apply.data.status === 'pending', JSON.stringify(apply.data));
+
+const badApply = await post('applicant2', '/auth/apply-therapist', {
+  email: `x_${Date.now()}@test.gr`, password: 'password123', display_name: 'Χωρίς ειδίκευση',
+  credentials: 'Ψυχολόγος', license_no: `GR-X-${Date.now() % 1000}`, languages: ['el'], specialties: [],
+});
+check('Απόρριψη αίτησης χωρίς ειδίκευση', badApply.status === 400, String(badApply.status));
+
+const dupLicence = await post('applicant3', '/auth/apply-therapist', {
+  email: `y_${Date.now()}@test.gr`, password: 'password123', display_name: 'Διπλή άδεια',
+  credentials: 'Ψυχολόγος', license_no: licence, languages: ['el'], specialties: ['anxiety'],
+});
+check('Απόρριψη διπλού αριθμού άδειας', dupLicence.status === 409, String(dupLicence.status));
+
+const pendingOverview = await get('applicant', '/provider/overview');
+check('Ο θεραπευτής σε αναμονή δεν έχει πελάτες', pendingOverview.data.therapist.status === 'pending' && pendingOverview.data.clients.length === 0);
+
+const dirBefore = await get('anonD', '/therapists');
+check('Ο θεραπευτής σε αναμονή δεν είναι στον κατάλογο',
+  !dirBefore.data.therapists.some((t) => t.license_no === licence));
+
+await post('admin', '/auth/login', { email: 'admin@mindbridge.gr', password: 'password123' });
+const apps = await get('admin', '/admin/applications');
+const mine = apps.data.applications.find((a) => a.license_no === licence);
+check('Η αίτηση εμφανίζεται στον admin', !!mine && mine.status === 'pending');
+const nonAdmin = await get('client', '/admin/applications');
+check('Πελάτης δεν βλέπει τις αιτήσεις', nonAdmin.status === 403, String(nonAdmin.status));
+
+const approved = await post('admin', `/admin/applications/${mine.id}`, { decision: 'approved' });
+check('Έγκριση αίτησης', approved.data.therapist.status === 'approved');
+const dirAfter = await get('anonD', '/therapists');
+check('Μετά την έγκριση μπαίνει στον κατάλογο',
+  dirAfter.data.therapists.some((t) => t.license_no === licence));
+
+// 13. Ερωτηματολόγιο γνωριμίας (κλινική αξιολόγηση)
+const defs = await get('client', '/assessment');
+check('Ορισμός αξιολόγησης', defs.data.sections.length === 4 && defs.data.scale.length === 4);
+
+const mild = await post('client', '/assessment', { answers: {
+  interest: 1, down: 1, sleep: 1, energy: 0, appetite: 0, self_worth: 0, concentration: 1, psychomotor: 0, self_harm: 0,
+  nervous: 1, worry_control: 1, worry_much: 1, relax: 0, restless: 0, irritable: 1, fear: 0,
+  therapy_history: 'Ποτέ', reason: 'Άγχος στη δουλειά',
+} });
+check('Υποβολή αξιολόγησης', mild.status === 201, JSON.stringify(mild.data));
+check('Βαθμολογία διάθεσης', mild.data.scores.mood.total === 4 && mild.data.scores.mood.label === 'Ελάχιστα συμπτώματα', JSON.stringify(mild.data.scores.mood));
+check('Βαθμολογία άγχους', mild.data.scores.anxiety.total === 4, JSON.stringify(mild.data.scores.anxiety));
+check('Χαμηλός κίνδυνος', mild.data.risk_level === 'low');
+
+const severe = await post('client', '/assessment', { answers: {
+  interest: 3, down: 3, sleep: 3, energy: 3, appetite: 2, self_worth: 3, concentration: 2, psychomotor: 2, self_harm: 3,
+  nervous: 3, worry_control: 3, worry_much: 3, relax: 2, restless: 2, irritable: 2, fear: 2,
+} });
+check('Ανίχνευση κρίσης από αυτοτραυματισμό', severe.data.risk_level === 'crisis' && severe.data.crisis === true);
+check('Σοβαρά συμπτώματα', severe.data.scores.mood.label === 'Σοβαρά συμπτώματα', severe.data.scores.mood.label);
+
+const me2 = await get('client', '/auth/me');
+check('Το /me επιστρέφει την τελευταία αξιολόγηση', me2.data.assessment?.risk_level === 'crisis');
+
+const hist = await get('client', '/assessment');
+check('Ιστορικό αξιολογήσεων', hist.data.history.length === 2, String(hist.data.history.length));
+
+// Ο ενεργός θεραπευτής του πελάτη βλέπει την αξιολόγηση στον φάκελο
+const newTherapistId = sw.data.therapist_id;
+const tEmail = `therapist${newTherapistId}@mindbridge.gr`;
+await post('therapist2', '/auth/login', { email: tEmail, password: 'password123' });
+const file = await get('therapist2', `/provider/clients/${me.data.user.id}`);
+check('Ο θεραπευτής βλέπει τις αξιολογήσεις', file.data.assessments?.length === 2, JSON.stringify(file.data.assessments?.length));
+const list = await get('therapist2', '/provider/overview');
+const row = list.data.clients.find((c) => c.client_id === me.data.user.id);
+check('Η λίστα πελατών δείχνει τον κίνδυνο από την αξιολόγηση', row?.risk_level === 'crisis', JSON.stringify(row?.risk_level));
+check('Σήμανση ολοκληρωμένης αξιολόγησης', !!row?.has_assessment);
+
 console.log(failures ? `\n${failures} έλεγχοι απέτυχαν` : '\nΌλοι οι έλεγχοι πέρασαν');
 process.exit(failures ? 1 : 0);

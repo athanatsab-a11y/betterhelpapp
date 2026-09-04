@@ -19,6 +19,9 @@ import TherapistDirectory from './pages/TherapistDirectory.jsx';
 import TherapistProfile from './pages/TherapistProfile.jsx';
 import GetStarted from './pages/GetStarted.jsx';
 import Login from './pages/Login.jsx';
+import Join from './pages/Join.jsx';
+import ApplyTherapist from './pages/ApplyTherapist.jsx';
+import Admin from './pages/admin/Admin.jsx';
 
 import AppLayout from './pages/app/AppLayout.jsx';
 import Dashboard from './pages/app/Dashboard.jsx';
@@ -33,6 +36,7 @@ import Account from './pages/app/Account.jsx';
 import SwitchTherapist from './pages/app/SwitchTherapist.jsx';
 import Notifications from './pages/app/Notifications.jsx';
 import More from './pages/app/More.jsx';
+import Assessment from './pages/app/Assessment.jsx';
 
 import ProviderLayout from './pages/provider/ProviderLayout.jsx';
 import ProviderDashboard from './pages/provider/ProviderDashboard.jsx';
@@ -77,13 +81,14 @@ export default function App() {
   const loc = useLocation();
   useEffect(() => { if (user) connectSocket(); }, [user]);
   const inProvider = loc.pathname.startsWith('/provider');
-  const inApp = loc.pathname.startsWith('/app') || inProvider;
+  const inAdmin = loc.pathname.startsWith('/admin');
+  const inApp = loc.pathname.startsWith('/app') || inProvider || inAdmin;
 
   return (
     <>
       <ScrollTop />
       {DEMO && <DemoEntry />}
-      {inApp ? <AppHeader provider={inProvider} /> : <Header />}
+      {inApp ? <AppHeader variant={inAdmin ? 'admin' : inProvider ? 'provider' : 'client'} /> : <Header />}
       {DEMO && <DemoBar />}
       {!inApp && <CrisisBanner />}
       <Routes>
@@ -95,6 +100,8 @@ export default function App() {
         <Route path="/crisis" element={<Crisis />} />
         <Route path="/therapists" element={<TherapistDirectory />} />
         <Route path="/therapists/:id" element={<TherapistProfile />} />
+        <Route path="/join" element={<Join />} />
+        <Route path="/apply" element={<ApplyTherapist />} />
         <Route path="/get-started" element={<GetStarted />} />
         <Route path="/login" element={<Login />} />
 
@@ -111,6 +118,7 @@ export default function App() {
           <Route path="switch-therapist" element={<SwitchTherapist />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="more" element={<More />} />
+          <Route path="assessment" element={<Assessment />} />
         </Route>
 
         <Route path="/provider" element={<Protected role="therapist"><ProviderLayout /></Protected>}>
@@ -123,9 +131,11 @@ export default function App() {
           <Route path="profile" element={<ProviderProfile />} />
         </Route>
 
+        <Route path="/admin" element={<Protected role="admin"><Admin /></Protected>} />
+
         <Route path="*" element={<div className="container section center"><h1>404</h1><p>Η σελίδα δεν βρέθηκε.</p></div>} />
       </Routes>
-      {inApp && <BottomTabs provider={inProvider} />}
+      {inApp && !inAdmin && <BottomTabs provider={inProvider} />}
       {!inApp && <Footer />}
     </>
   );

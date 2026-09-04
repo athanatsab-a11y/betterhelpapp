@@ -14,6 +14,7 @@ import intakeRoutes from './routes/intake.js';
 import therapyRoutes from './routes/therapy.js';
 import toolsRoutes from './routes/tools.js';
 import billingRoutes from './routes/billing.js';
+import assessmentRoutes from './routes/assessment.js';
 import { ensureSeed } from './seed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,6 +31,7 @@ app.use('/api', intakeRoutes);
 app.use('/api', therapyRoutes);
 app.use('/api', toolsRoutes);
 app.use('/api', billingRoutes);
+app.use('/api', assessmentRoutes);
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, _req, res, _next) => {

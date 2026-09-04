@@ -6,6 +6,7 @@ export function rankTherapists(answers = {}, limit = 5) {
     SELECT t.*, u.display_name, u.timezone,
       (SELECT COUNT(*) FROM matches m WHERE m.therapist_id = t.id AND m.status = 'active') AS active_clients
     FROM therapists t JOIN users u ON u.id = t.user_id
+    WHERE t.status = 'approved'
   `).all();
   return scoreTherapists(rows, answers, limit);
 }

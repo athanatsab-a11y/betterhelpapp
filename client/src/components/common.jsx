@@ -51,7 +51,7 @@ export function Header() {
           ) : (
             <>
               <NavLink to="/login">Σύνδεση</NavLink>
-              <Link className="btn small" to="/get-started">Ξεκίνα τώρα</Link>
+              <Link className="btn small" to="/join">Ξεκίνα τώρα</Link>
             </>
           )}
         </nav>
@@ -75,7 +75,8 @@ export function Footer() {
               <Link to="/get-started">Ατομική θεραπεία</Link><br />
               <Link to="/get-started?service=couples">Θεραπεία ζεύγους</Link><br />
               <Link to="/get-started?service=teen">Θεραπεία εφήβων</Link><br />
-              <Link to="/therapists">Κατάλογος θεραπευτών</Link>
+              <Link to="/therapists">Κατάλογος θεραπευτών</Link><br />
+              <Link to="/apply">Γίνε θεραπευτής μας</Link>
             </p>
           </div>
           <div>

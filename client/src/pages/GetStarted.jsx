@@ -74,7 +74,7 @@ export default function GetStarted() {
     try {
       await api.post('/subscription', { plan, billing_period: period, card_number: e.target.card?.value || '' });
       await refresh();
-      nav('/app');
+      nav('/app/assessment');
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
 
@@ -88,6 +88,7 @@ export default function GetStarted() {
       <div className="wizard stack">
         {phase === 'quiz' && (
           <>
+            <p className="small muted">Εγγραφή ως πελάτης · <Link to="/apply">είμαι θεραπευτής</Link></p>
             <div className="progress"><i style={{ width: `${(step / questions.length) * 100}%` }} /></div>
             <p className="small muted">Ερώτηση {step + 1} από {questions.length}</p>
             <h1 style={{ fontSize: '1.7rem' }}>{q.title}</h1>

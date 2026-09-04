@@ -16,6 +16,7 @@ export default function DemoBar() {
   };
 
   const role = loc.pathname.startsWith('/provider') ? 'therapist'
+    : loc.pathname.startsWith('/admin') ? 'admin'
     : loc.pathname.startsWith('/app') ? 'member' : 'public';
 
   return (
@@ -26,6 +27,8 @@ export default function DemoBar() {
           onClick={() => enter('demo@mindbridge.gr', '/app')}>Μέλος</button>
         <button className={role === 'therapist' ? 'on' : ''} disabled={busy}
           onClick={() => enter('therapist1@mindbridge.gr', '/provider')}>Θεραπευτής</button>
+        <button className={role === 'admin' ? 'on' : ''} disabled={busy}
+          onClick={() => enter('admin@mindbridge.gr', '/admin')}>Διαχειριστής</button>
         <button className={role === 'public' ? 'on' : ''} disabled={busy}
           onClick={() => nav('/')}>Δημόσιο site</button>
       </div>

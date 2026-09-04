@@ -235,3 +235,130 @@ export function planPrice(planKey, period = 'monthly', discountPct = 0) {
   const base = Math.round(plan.monthly_cents * (PERIOD_MULTIPLIER[period] ?? 1));
   return Math.round(base * (1 - (discountPct || 0) / 100));
 }
+
+/* ---------------- Κλινική γνωριμία (screening, όχι διάγνωση) ---------------- */
+
+export const FREQ_SCALE = [
+  { value: 0, label: 'Καθόλου' },
+  { value: 1, label: 'Μερικές μέρες' },
+  { value: 2, label: 'Πάνω από τις μισές μέρες' },
+  { value: 3, label: 'Σχεδόν κάθε μέρα' },
+];
+
+// Πόσο συχνά σε ενόχλησαν τα παρακάτω τις τελευταίες 2 εβδομάδες;
+export const ASSESSMENT = [
+  {
+    id: 'mood',
+    title: 'Διάθεση',
+    intro: 'Τις τελευταίες 2 εβδομάδες, πόσο συχνά σε ενόχλησαν τα παρακάτω;',
+    scale: 'freq',
+    max: 27,
+    items: [
+      { key: 'interest', label: 'Λίγο ενδιαφέρον ή ευχαρίστηση από πράγματα που συνήθως σου αρέσουν' },
+      { key: 'down', label: 'Πεσμένη διάθεση, μελαγχολία ή αίσθημα απελπισίας' },
+      { key: 'sleep', label: 'Δυσκολία στον ύπνο ή υπερβολικός ύπνος' },
+      { key: 'energy', label: 'Κόπωση ή έλλειψη ενέργειας' },
+      { key: 'appetite', label: 'Αλλαγές στην όρεξη — έφαγες πολύ λιγότερο ή πολύ περισσότερο' },
+      { key: 'self_worth', label: 'Αίσθημα αποτυχίας ή ότι απογοήτευσες τον εαυτό σου και τους δικούς σου' },
+      { key: 'concentration', label: 'Δυσκολία συγκέντρωσης σε πράγματα όπως δουλειά, διάβασμα ή τηλεόραση' },
+      { key: 'psychomotor', label: 'Κινήσεις ή ομιλία πολύ πιο αργές — ή, αντίθετα, έντονη ανησυχία' },
+      { key: 'self_harm', label: 'Σκέψεις ότι θα ήταν καλύτερα να μην υπάρχεις ή ότι θα έβλαπτες τον εαυτό σου', critical: true },
+    ],
+    bands: [
+      { upTo: 4, label: 'Ελάχιστα συμπτώματα' },
+      { upTo: 9, label: 'Ήπια συμπτώματα' },
+      { upTo: 14, label: 'Μέτρια συμπτώματα' },
+      { upTo: 19, label: 'Μέτρια προς σοβαρά συμπτώματα' },
+      { upTo: 27, label: 'Σοβαρά συμπτώματα' },
+    ],
+  },
+  {
+    id: 'anxiety',
+    title: 'Άγχος',
+    intro: 'Τις τελευταίες 2 εβδομάδες, πόσο συχνά σε ενόχλησαν τα παρακάτω;',
+    scale: 'freq',
+    max: 21,
+    items: [
+      { key: 'nervous', label: 'Νευρικότητα, ένταση ή αίσθημα ότι είσαι στην τσίτα' },
+      { key: 'worry_control', label: 'Αδυναμία να σταματήσεις ή να ελέγξεις την ανησυχία' },
+      { key: 'worry_much', label: 'Υπερβολική ανησυχία για διάφορα πράγματα' },
+      { key: 'relax', label: 'Δυσκολία να χαλαρώσεις' },
+      { key: 'restless', label: 'Τόση ανησυχία που δυσκολεύεσαι να καθίσεις ήσυχα' },
+      { key: 'irritable', label: 'Ευερεθιστότητα ή εκνευρισμός με το παραμικρό' },
+      { key: 'fear', label: 'Φόβος ότι κάτι κακό πρόκειται να συμβεί' },
+    ],
+    bands: [
+      { upTo: 4, label: 'Ελάχιστο άγχος' },
+      { upTo: 9, label: 'Ήπιο άγχος' },
+      { upTo: 14, label: 'Μέτριο άγχος' },
+      { upTo: 21, label: 'Σοβαρό άγχος' },
+    ],
+  },
+  {
+    id: 'context',
+    title: 'Ιστορικό & πλαίσιο',
+    intro: 'Λίγα πράγματα που βοηθούν τον θεραπευτή σου να σε γνωρίσει.',
+    scale: 'choice',
+    items: [
+      {
+        key: 'therapy_history', label: 'Έχεις κάνει ξανά ψυχοθεραπεία;',
+        options: ['Ποτέ', 'Ναι, στο παρελθόν', 'Ναι, αυτή τη στιγμή'],
+      },
+      {
+        key: 'medication', label: 'Παίρνεις φαρμακευτική αγωγή για την ψυχική σου υγεία;',
+        options: ['Όχι', 'Ναι', 'Το σκέφτομαι'],
+      },
+      {
+        key: 'physical_health', label: 'Υπάρχει σωματικό πρόβλημα υγείας που επηρεάζει την καθημερινότητά σου;',
+        options: ['Όχι', 'Ναι, ήπιο', 'Ναι, σημαντικό'],
+      },
+      {
+        key: 'substances', label: 'Πόσο συχνά χρησιμοποιείς αλκοόλ ή άλλες ουσίες για να διαχειριστείς τα συναισθήματά σου;',
+        options: ['Ποτέ', 'Σπάνια', 'Εβδομαδιαία', 'Καθημερινά'],
+      },
+      {
+        key: 'support', label: 'Πόσο υποστηρικτικό είναι το περιβάλλον σου (οικογένεια, φίλοι);',
+        options: ['Καθόλου', 'Λίγο', 'Αρκετά', 'Πολύ'],
+      },
+      {
+        key: 'impact', label: 'Πόσο δύσκολα σε κάνουν αυτά να λειτουργήσεις στην καθημερινότητα;',
+        options: ['Καθόλου δύσκολα', 'Λίγο δύσκολα', 'Πολύ δύσκολα', 'Εξαιρετικά δύσκολα'],
+      },
+    ],
+  },
+  {
+    id: 'goals',
+    title: 'Στόχοι',
+    intro: 'Με δικά σου λόγια — αυτά τα διαβάζει ο θεραπευτής σου πριν την πρώτη επαφή.',
+    scale: 'text',
+    items: [
+      { key: 'reason', label: 'Τι σε έφερε εδώ τώρα;', type: 'textarea' },
+      { key: 'change', label: 'Τι θα ήθελες να είναι διαφορετικό σε 3 μήνες;', type: 'textarea' },
+      { key: 'tried', label: 'Τι έχεις ήδη δοκιμάσει και τι βοήθησε (ή δεν βοήθησε);', type: 'textarea' },
+      { key: 'strengths', label: 'Τι σε βοηθάει να αντέχεις στις δύσκολες μέρες;', type: 'text' },
+    ],
+  },
+];
+
+export function scoreAssessment(answers = {}) {
+  const scores = {};
+  for (const section of ASSESSMENT) {
+    if (section.scale !== 'freq') continue;
+    const total = section.items.reduce((sum, item) => sum + (Number(answers[item.key]) || 0), 0);
+    const band = section.bands.find((b) => total <= b.upTo) || section.bands.at(-1);
+    scores[section.id] = { total, max: section.max, label: band.label };
+  }
+  const selfHarm = Number(answers.self_harm) || 0;
+  const risk = selfHarm >= 2 ? 'crisis'
+    : selfHarm === 1 || (scores.mood?.total ?? 0) >= 15 || (scores.anxiety?.total ?? 0) >= 15 ? 'elevated'
+    : 'low';
+  return { scores, risk_level: risk };
+}
+
+/* ---------------- Αίτηση θεραπευτή ---------------- */
+
+export const THERAPIST_APPLICATION_LANGUAGES = [
+  { key: 'el', label: 'Ελληνικά' },
+  { key: 'en', label: 'Αγγλικά' },
+  { key: 'de', label: 'Γερμανικά' },
+];

@@ -38,12 +38,13 @@ export default function Login() {
           {error && <p className="error">{error}</p>}
           <button className="btn block" disabled={busy}>{busy ? 'Σύνδεση…' : 'Σύνδεση'}</button>
         </form>
-        <p className="small muted">Δεν έχεις λογαριασμό; <Link to="/get-started">Ξεκίνα εδώ</Link></p>
+        <p className="small muted">Δεν έχεις λογαριασμό; <Link to="/join">Ξεκίνα εδώ</Link> — ως πελάτης ή θεραπευτής.</p>
         <div className="divider" />
         <p className="small muted">
           <b>Demo λογαριασμοί</b><br />
           Μέλος: demo@mindbridge.gr<br />
           Θεραπευτής: therapist1@mindbridge.gr<br />
+          Διαχειριστής: admin@mindbridge.gr<br />
           Κωδικός και για τους δύο: password123
         </p>
       </div>

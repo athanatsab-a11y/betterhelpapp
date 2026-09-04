@@ -31,7 +31,7 @@ export default function Home() {
               κάνε live συνεδρίες με βίντεο, τηλέφωνο ή chat — από όπου κι αν είσαι.
             </p>
             <div className="row">
-              <Link className="btn" to="/get-started">Ξεκίνα το ερωτηματολόγιο</Link>
+              <Link className="btn" to="/join">Ξεκίνα τώρα</Link>
               <Link className="btn secondary" to="/how-it-works">Πώς λειτουργεί</Link>
             </div>
             <div className="stat-strip">
@@ -99,7 +99,8 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <p className="center" style={{ marginTop: '2rem' }}><Link className="btn" to="/get-started">Βρες τον θεραπευτή σου</Link></p>
+          <p className="center" style={{ marginTop: '2rem' }}><Link className="btn" to="/get-started">Βρες τον θεραπευτή σου</Link>
+            <p className="small muted" style={{ marginTop: '1rem' }}>Είσαι ψυχολόγος ή ψυχοθεραπευτής; <Link to="/apply">Κάνε αίτηση συνεργασίας</Link>.</p></p>
         </div>
       </section>
 

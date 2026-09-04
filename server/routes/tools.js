@@ -95,10 +95,15 @@ router.delete('/groupinars/:id/register', requireAuth, (req, res) => {
 
 router.get('/provider/overview', requireRole('therapist'), (req, res) => {
   const t = db.prepare('SELECT * FROM therapists WHERE user_id = ?').get(req.user.id);
+  if (t.status !== 'approved') return res.json({ therapist: t, clients: [], upcoming: [] });
   const clients = db.prepare(`
     SELECT m.id AS match_id, u.id AS client_id, u.display_name, u.nickname, m.started_at, r.id AS room_id,
       (SELECT COUNT(*) FROM messages WHERE room_id = r.id AND read_at IS NULL AND sender_id != ?) AS unread,
-      (SELECT risk_level FROM intakes WHERE user_id = u.id ORDER BY id DESC LIMIT 1) AS risk_level
+      COALESCE(
+        (SELECT risk_level FROM assessments WHERE user_id = u.id ORDER BY id DESC LIMIT 1),
+        (SELECT risk_level FROM intakes WHERE user_id = u.id ORDER BY id DESC LIMIT 1)
+      ) AS risk_level,
+      EXISTS(SELECT 1 FROM assessments WHERE user_id = u.id) AS has_assessment
     FROM matches m JOIN users u ON u.id = m.client_id JOIN rooms r ON r.match_id = m.id
     WHERE m.therapist_id = ? AND m.status = 'active' ORDER BY unread DESC, m.started_at DESC
   `).all(req.user.id, t.id);
@@ -161,8 +166,11 @@ router.get('/provider/clients/:id', requireRole('therapist'), (req, res) => {
     SELECT a.*, w.title FROM worksheet_assignments a JOIN worksheets w ON w.id = a.worksheet_id
     WHERE a.client_id = ? ORDER BY a.id DESC
   `).all(req.params.id);
+  const assessments = db.prepare('SELECT * FROM assessments WHERE user_id = ? ORDER BY id DESC LIMIT 10')
+    .all(req.params.id)
+    .map((a) => ({ ...a, answers: JSON.parse(a.answers), scores: JSON.parse(a.scores) }));
   res.json({
-    client, journal, worksheets,
+    client, journal, worksheets, assessments,
     intake: intake ? { ...intake, answers: JSON.parse(intake.answers) } : null,
   });
 });

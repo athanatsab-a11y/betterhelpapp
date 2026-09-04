@@ -50,6 +50,15 @@ CREATE TABLE IF NOT EXISTS therapists (
   avg_response_hours INTEGER DEFAULT 8
 );
 
+CREATE TABLE IF NOT EXISTS assessments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  answers TEXT NOT NULL,                         -- json
+  scores TEXT NOT NULL,                          -- json {mood, anxiety, ...}
+  risk_level TEXT DEFAULT 'low',
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS intakes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -212,10 +221,25 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE INDEX IF NOT EXISTS idx_assessments_user ON assessments(user_id, id);
 CREATE INDEX IF NOT EXISTS idx_messages_room ON messages(room_id, id);
 CREATE INDEX IF NOT EXISTS idx_matches_client ON matches(client_id, status);
 CREATE INDEX IF NOT EXISTS idx_avail_therapist ON availability(therapist_id, starts_at);
 `);
+
+// Adds a column to an existing database without a migration tool.
+function ensureColumn(table, column, definition) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+// Therapists sign up themselves now, so a profile is only listed once reviewed.
+ensureColumn('therapists', 'status', "TEXT NOT NULL DEFAULT 'approved'");
+ensureColumn('therapists', 'applied_at', 'TEXT');
+ensureColumn('therapists', 'reviewed_at', 'TEXT');
+ensureColumn('therapists', 'review_note', 'TEXT');
 
 export function notify(userId, title, body, link) {
   db.prepare('INSERT INTO notifications (user_id,title,body,link) VALUES (?,?,?,?)')

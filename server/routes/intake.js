@@ -37,7 +37,7 @@ router.post('/match', requireAuth, (req, res) => {
   const answers = intake ? JSON.parse(intake.answers) : {};
   let chosen = null;
   if (therapist_id) {
-    const t = db.prepare('SELECT * FROM therapists WHERE id = ?').get(therapist_id);
+    const t = db.prepare("SELECT * FROM therapists WHERE id = ? AND status = 'approved'").get(therapist_id);
     if (!t) return res.status(404).json({ error: 'Ο θεραπευτής δεν βρέθηκε' });
     const ranked = rankTherapists(answers, 50).find((r) => r.id === t.id);
     chosen = ranked || { id: t.id, score: 0, reason: 'επιλογή χρήστη' };
@@ -54,6 +54,7 @@ router.get('/therapists', (req, res) => {
   const { specialty, language, gender, q } = req.query;
   let rows = db.prepare(`
     SELECT t.*, u.display_name FROM therapists t JOIN users u ON u.id = t.user_id
+    WHERE t.status = 'approved'
   `).all();
   if (specialty) rows = rows.filter((t) => (t.specialties || '').split(',').includes(specialty));
   if (language) rows = rows.filter((t) => (t.languages || '').split(',').includes(language));
@@ -66,7 +67,7 @@ router.get('/therapists', (req, res) => {
 });
 
 router.get('/therapists/:id', (req, res) => {
-  const t = db.prepare('SELECT t.*, u.display_name FROM therapists t JOIN users u ON u.id=t.user_id WHERE t.id = ?').get(req.params.id);
+  const t = db.prepare("SELECT t.*, u.display_name FROM therapists t JOIN users u ON u.id=t.user_id WHERE t.id = ? AND t.status = 'approved'").get(req.params.id);
   if (!t) return res.status(404).json({ error: 'Δεν βρέθηκε' });
   const reviews = db.prepare('SELECT rating, body, author_label, created_at FROM reviews WHERE therapist_id = ? ORDER BY id DESC LIMIT 20').all(t.id);
   res.json({ therapist: publicTherapist(t), reviews });

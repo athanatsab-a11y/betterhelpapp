@@ -6,6 +6,7 @@ const LINKS = [
   ['/app/room', 'Δωμάτιο θεραπείας', '💬'],
   ['/app/sessions', 'Συνεδρίες', '📅'],
   ['/app/journal', 'Ημερολόγιο', '📓'],
+  ['/app/assessment', 'Αξιολόγηση', '🧭'],
   ['/app/worksheets', 'Φύλλα εργασίας', '📝'],
   ['/app/groupinars', 'Groupinars', '🎧'],
   ['/app/billing', 'Χρεώσεις', '💳'],

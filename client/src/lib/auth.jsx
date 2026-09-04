@@ -4,7 +4,7 @@ import { api } from './api.js';
 const AuthCtx = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({ loading: true, user: null, match: null, subscription: null, therapist: null, unread: 0 });
+  const [state, setState] = useState({ loading: true, user: null, match: null, subscription: null, therapist: null, assessment: null, unread: 0 });
 
   const refresh = useCallback(async () => {
     try {
@@ -12,11 +12,11 @@ export function AuthProvider({ children }) {
       setState({
         loading: false, user: d.user, match: d.match ?? null,
         subscription: d.subscription ?? null, therapist: d.therapist ?? null,
-        unread: d.unread_notifications ?? 0,
+        assessment: d.assessment ?? null, unread: d.unread_notifications ?? 0,
       });
       return d;
     } catch {
-      setState({ loading: false, user: null, match: null, subscription: null, therapist: null, unread: 0 });
+      setState({ loading: false, user: null, match: null, subscription: null, therapist: null, assessment: null, unread: 0 });
       return null;
     }
   }, []);

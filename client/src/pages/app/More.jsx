@@ -3,6 +3,7 @@ import { useAuth } from '../../lib/auth.jsx';
 import { euro, PLAN, PERIOD } from '../../lib/api.js';
 
 const LINKS = [
+  ['/app/assessment', '🧭', 'Αξιολόγηση γνωριμίας', 'Διάθεση, άγχος, ιστορικό και στόχοι — δες την πορεία σου'],
   ['/app/worksheets', '📝', 'Φύλλα εργασίας', 'Ασκήσεις CBT/ACT που σου αναθέτει ο θεραπευτής σου'],
   ['/app/groupinars', '🎧', 'Groupinars', 'Ζωντανά σεμινάρια με ειδικούς, μέσα στη συνδρομή σου'],
   ['/app/notifications', '🔔', 'Ειδοποιήσεις', 'Μηνύματα, ραντεβού και αναθέσεις'],

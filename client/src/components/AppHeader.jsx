@@ -4,7 +4,9 @@ import { useAuth } from '../lib/auth.jsx';
 import { Avatar } from './common.jsx';
 
 // Product chrome for the signed-in areas: compact, no marketing navigation.
-export default function AppHeader({ provider = false }) {
+export default function AppHeader({ variant = 'client' }) {
+  const provider = variant === 'provider';
+  const admin = variant === 'admin';
   const { user, unread, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
@@ -16,13 +18,13 @@ export default function AppHeader({ provider = false }) {
     return () => document.removeEventListener('click', close);
   }, []);
 
-  const base = provider ? '/provider' : '/app';
+  const base = admin ? '/admin' : provider ? '/provider' : '/app';
 
   return (
     <header className="app-header">
       <Link to={base} className="logo"><span className="logo-mark">MB</span> MindBridge</Link>
       <div className="app-header-actions">
-        {!provider && (
+        {variant === 'client' && (
           <Link className="icon-btn" to="/app/notifications" aria-label="Ειδοποιήσεις">
             🔔{unread ? <i className="dot">{unread}</i> : null}
           </Link>
@@ -35,11 +37,12 @@ export default function AppHeader({ provider = false }) {
             <div className="menu">
               <div className="menu-head">
                 <b>{user?.display_name}</b>
-                <div className="small muted">{provider ? 'Θεραπευτής' : 'Μέλος'}</div>
+                <div className="small muted">{admin ? 'Διαχειριστής' : provider ? 'Θεραπευτής' : 'Μέλος'}</div>
               </div>
-              <Link to={provider ? '/provider/profile' : '/app/account'}>Ρυθμίσεις λογαριασμού</Link>
-              {!provider && <Link to="/app/billing">Χρεώσεις & συνδρομή</Link>}
-              {!provider && <Link to="/app/switch-therapist">Αλλαγή θεραπευτή</Link>}
+              {admin && <Link to="/admin">Αιτήσεις θεραπευτών</Link>}
+              {!admin && <Link to={provider ? '/provider/profile' : '/app/account'}>Ρυθμίσεις λογαριασμού</Link>}
+              {variant === 'client' && <Link to="/app/billing">Χρεώσεις & συνδρομή</Link>}
+              {variant === 'client' && <Link to="/app/switch-therapist">Αλλαγή θεραπευτή</Link>}
               <Link to="/">Δημόσιο site</Link>
               <Link to="/crisis">Άμεση βοήθεια</Link>
               <button onClick={async () => { await logout(); nav('/'); }}>Αποσύνδεση</button>

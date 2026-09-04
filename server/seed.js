@@ -96,6 +96,17 @@ export function seed() {
       .run(demoId, 25600, 'Συνδρομή standard (monthly)');
 
     insertUser.run('admin@mindbridge.gr', pw, 'admin', 'Διαχειριστής', 'Admin');
+
+    // One application waiting for review, so the admin screen has something real.
+    const applicantId = insertUser.run('applicant@mindbridge.gr', pw, 'therapist', 'Κατερίνα Βλάχου', 'Κατερίνα').lastInsertRowid;
+    db.prepare(`
+      INSERT INTO therapists (user_id, headline, bio, credentials, license_no, years_experience, gender,
+        languages, specialties, approaches, faith_based, lgbtq_friendly, rating, reviews_count,
+        accepting_clients, max_clients, avg_response_hours, status, applied_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,0,1,0,0,1,?,?, 'pending', datetime('now','-1 day'))
+    `).run(applicantId, 'Άγχος και ψυχοσωματικά συμπτώματα',
+      'Εργάζομαι με ενήλικες που βιώνουν άγχος με σωματικές εκδηλώσεις. Εκπαίδευση σε CBT και τεχνικές χαλάρωσης.',
+      'Ψυχολόγος, MSc Κλινική Ψυχολογία', 'GR-PSY-15320', 6, 'female', 'el,en', 'anxiety,stress,sleep', 'cbt,mindfulness', 18, 10);
   })();
 
   console.log('Seed ready: 12 θεραπευτές, demo@mindbridge.gr / therapist1@mindbridge.gr — κωδικός password123');

@@ -57,6 +57,43 @@ export default function ProviderClient() {
       </div>
 
       <div className="card stack">
+        <h3>Αξιολόγηση γνωριμίας</h3>
+        {!data.assessments?.length && <p className="small muted">Ο πελάτης δεν έχει συμπληρώσει ακόμη το ερωτηματολόγιο γνωριμίας.</p>}
+        {data.assessments?.map((a, i) => (
+          <div key={a.id} className="stack" style={{ borderBottom: '1px solid var(--line)', paddingBottom: '.8rem' }}>
+            <div className="spread">
+              <b className="small">{dt(a.created_at)}{i === 0 ? ' (τελευταία)' : ''}</b>
+              <span className={`pill ${a.risk_level === 'crisis' ? 'danger' : a.risk_level === 'elevated' ? 'warn' : 'ok'}`}>
+                Κίνδυνος: {a.risk_level}
+              </span>
+            </div>
+            <div className="row small">
+              {Object.entries(a.scores).map(([k, sc]) => (
+                <span key={k} className="pill">
+                  {({ mood: 'Διάθεση', anxiety: 'Άγχος' }[k] || k)}: {sc.total}/{sc.max} — {sc.label}
+                </span>
+              ))}
+            </div>
+            {i === 0 && (
+              <table className="table">
+                <tbody>
+                  <tr><th>Γιατί τώρα</th><td>{a.answers.reason || '—'}</td></tr>
+                  <tr><th>Στόχος 3 μηνών</th><td>{a.answers.change || '—'}</td></tr>
+                  <tr><th>Τι έχει δοκιμάσει</th><td>{a.answers.tried || '—'}</td></tr>
+                  <tr><th>Δυνάμεις</th><td>{a.answers.strengths || '—'}</td></tr>
+                  <tr><th>Προηγούμενη θεραπεία</th><td>{a.answers.therapy_history || '—'}</td></tr>
+                  <tr><th>Φαρμακευτική αγωγή</th><td>{a.answers.medication || '—'}</td></tr>
+                  <tr><th>Ουσίες</th><td>{a.answers.substances || '—'}</td></tr>
+                  <tr><th>Υποστηρικτικό δίκτυο</th><td>{a.answers.support || '—'}</td></tr>
+                  <tr><th>Επίδραση στην καθημερινότητα</th><td>{a.answers.impact || '—'}</td></tr>
+                </tbody>
+              </table>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="card stack">
         <h3>Ανάθεση φύλλου εργασίας</h3>
         <div className="row">
           <select value={slug} onChange={(e) => setSlug(e.target.value)} style={{ maxWidth: 320 }}>
