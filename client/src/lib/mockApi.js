@@ -2,6 +2,7 @@
 // (`npm run build:demo`). It keeps the exact same routes and response shapes as
 // server/routes/*, backed by in-memory state seeded from shared/seed-data.js —
 // so the real React app runs unchanged, with no server and no network.
+import '../demo.css';
 import { THERAPISTS, WORKSHEETS, REVIEW_BODIES, GROUPINARS } from '../../../shared/seed-data.js';
 import { questionnaireWithOptions, riskFromAnswers, SPECIALTIES, APPROACHES, PLANS, planPrice,
   ASSESSMENT, FREQ_SCALE, scoreAssessment } from '../../../shared/catalog.js';
