@@ -6,7 +6,7 @@ import { useAuth } from '../lib/auth.jsx';
 const LANGS = [['el', 'Ελληνικά'], ['en', 'Αγγλικά'], ['de', 'Γερμανικά']];
 
 export default function ApplyTherapist() {
-  const { refresh } = useAuth();
+  const { applyAsTherapist } = useAuth();
   const [meta, setMeta] = useState({ specialties: [], approaches: [] });
   const [form, setForm] = useState({
     display_name: '', email: '', password: '', phone: '',
@@ -15,6 +15,7 @@ export default function ApplyTherapist() {
     max_clients: 20, avg_response_hours: 12, faith_based: false, lgbtq_friendly: true,
   });
   const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const nav = useNavigate();
 
@@ -31,11 +32,24 @@ export default function ApplyTherapist() {
     e.preventDefault();
     setBusy(true); setError('');
     try {
-      await api.post('/auth/apply-therapist', { ...form, years_experience: Number(form.years_experience) || 0 });
-      await refresh();
+      const r = await applyAsTherapist({ ...form, years_experience: Number(form.years_experience) || 0 });
+      if (r?.needsEmailConfirmation) { setSent(true); return; }
       nav('/provider');
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
+
+  if (sent) {
+    return (
+      <main className="container section stack" style={{ maxWidth: 620 }}>
+        <span className="pill">Η αίτηση καταχωρήθηκε</span>
+        <h1>Έλεγξε το email σου</h1>
+        <p>
+          Στείλαμε σύνδεσμο επιβεβαίωσης στο <b>{form.email}</b>. Μόλις τον πατήσεις, η αίτησή σου μπαίνει
+          στην ουρά αξιολόγησης και θα σε ενημερώσουμε για την έγκριση.
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="container section" style={{ maxWidth: 760 }}>

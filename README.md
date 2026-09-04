@@ -59,9 +59,27 @@ Landing page, «Πώς λειτουργεί», τιμοκατάλογος με �
 
 ## Τεχνολογίες
 
-- **Backend**: Node.js, Express, better-sqlite3, JWT σε httpOnly cookie, bcrypt, `ws` για WebSocket.
+- **Backend**: Node.js, Express, `ws` για WebSocket.
+- **Βάση**: SQLite τοπικά, **Supabase Postgres** σε production — ίδιος κώδικας ερωτημάτων, ο driver
+  επιλέγεται από το `DATABASE_URL`.
+- **Ταυτοποίηση**: **Supabase Auth** όταν είναι ρυθμισμένο (επαλήθευση access token με JWKS),
+  αλλιώς ενσωματωμένο bcrypt + JWT cookie για τοπική ανάπτυξη και tests.
 - **Frontend**: React 18, React Router 6, Vite — χωρίς UI framework, custom design system σε CSS.
-- **Βάση**: SQLite (WAL), 17 πίνακες, foreign keys ενεργά.
+
+### Supabase
+
+Οδηγός βήμα-βήμα: [`docs/supabase.md`](docs/supabase.md).
+
+```bash
+cp .env.example .env && cp client/.env.example client/.env   # βάλε τα κλειδιά σου
+npm run db:migrate     # supabase/migrations/*.sql με μητρώο εφαρμογής
+npm run db:seed        # αρχικά δεδομένα
+npm run build && npm start
+```
+
+Χωρίς τις μεταβλητές `DATABASE_URL` / `SUPABASE_URL` / `VITE_SUPABASE_*` η εφαρμογή τρέχει όπως πριν,
+σε SQLite με δικό της auth. Όλοι οι πίνακες έχουν RLS ενεργό χωρίς πολιτικές και χωρίς δικαιώματα για
+`anon`/`authenticated`, ώστε το αυτόματο REST API του Supabase να μην επιστρέφει δεδομένα θεραπείας.
 
 ## Demo χωρίς server
 
@@ -104,7 +122,7 @@ npm start            # ο Express σερβίρει API + SPA στο :3000
 
 ```bash
 npm start            # σε άλλο terminal
-npm test             # 69 end-to-end έλεγχοι στο API
+npm test             # 69 end-to-end έλεγχοι στο API (τρέχουν και στις δύο βάσεις)
 ```
 
 Καλύπτουν: ερωτηματολόγιο και αντιστοίχιση, ανίχνευση κρίσης, εγγραφή/σύνδεση, απομόνωση δωματίων,
@@ -119,10 +137,12 @@ shared/            Κοινός κώδικας API και demo build
   catalog.js       Ερωτηματολόγιο, ειδικεύσεις, προσεγγίσεις, πακέτα, τιμολόγηση
   matching-core.js Ο αλγόριθμος αντιστοίχισης (καθαρή συνάρτηση)
   seed-data.js     Θεραπευτές, φύλλα εργασίας, groupinars
+supabase/migrations/  Σχήμα Postgres (+ RLS) για το Supabase
+scripts/migrate.mjs   Εφαρμογή migrations με μητρώο
 server/
   index.js         Express app, static SPA, error handling
-  db.js            Σχήμα SQLite + helper ειδοποιήσεων
-  auth.js          JWT cookies, hashing, guards ρόλων
+  db/              Driver SQLite/Postgres, μετάφραση διαλέκτου, σχήμα SQLite
+  auth.js          Supabase token verification ή τοπικό JWT cookie, guards ρόλων
   matching.js      Κατάταξη θεραπευτών από τη βάση και ανάθεση
   realtime.js      WebSocket hub (μηνύματα, typing)
   seed.js          Αρχικά δεδομένα

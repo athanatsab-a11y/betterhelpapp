@@ -1,21 +1,11 @@
-import Database from 'better-sqlite3';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataDir = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
-fs.mkdirSync(dataDir, { recursive: true });
-
-export const db = new Database(path.join(dataDir, 'mindbridge.db'));
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-db.exec(`
+// Local SQLite schema. The Supabase Postgres equivalent lives in
+// supabase/migrations/ and is applied with the Supabase CLI or psql.
+export const SQLITE_SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
+  auth_id TEXT UNIQUE,                           -- Supabase auth.users.id
+  password_hash TEXT,                            -- only for the legacy/local auth mode
   role TEXT NOT NULL DEFAULT 'client',           -- client | therapist | admin
   display_name TEXT NOT NULL,
   nickname TEXT,
@@ -225,23 +215,4 @@ CREATE INDEX IF NOT EXISTS idx_assessments_user ON assessments(user_id, id);
 CREATE INDEX IF NOT EXISTS idx_messages_room ON messages(room_id, id);
 CREATE INDEX IF NOT EXISTS idx_matches_client ON matches(client_id, status);
 CREATE INDEX IF NOT EXISTS idx_avail_therapist ON availability(therapist_id, starts_at);
-`);
-
-// Adds a column to an existing database without a migration tool.
-function ensureColumn(table, column, definition) {
-  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
-  if (!cols.some((c) => c.name === column)) {
-    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
-  }
-}
-
-// Therapists sign up themselves now, so a profile is only listed once reviewed.
-ensureColumn('therapists', 'status', "TEXT NOT NULL DEFAULT 'approved'");
-ensureColumn('therapists', 'applied_at', 'TEXT');
-ensureColumn('therapists', 'reviewed_at', 'TEXT');
-ensureColumn('therapists', 'review_note', 'TEXT');
-
-export function notify(userId, title, body, link) {
-  db.prepare('INSERT INTO notifications (user_id,title,body,link) VALUES (?,?,?,?)')
-    .run(userId, title, body ?? null, link ?? null);
-}
+`;

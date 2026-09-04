@@ -3,7 +3,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../lib/auth.jsx';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, resetPassword, supabaseEnabled } = useAuth();
+  const [notice, setNotice] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -36,17 +37,28 @@ export default function Login() {
             <input id="pw" type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           </div>
           {error && <p className="error">{error}</p>}
+          {notice && <p className="success">{notice}</p>}
           <button className="btn block" disabled={busy}>{busy ? 'Σύνδεση…' : 'Σύνδεση'}</button>
         </form>
+        {supabaseEnabled && (
+          <button className="btn ghost small" type="button" onClick={async () => {
+            setError(''); setNotice('');
+            if (!form.email) { setError('Γράψε πρώτα το email σου'); return; }
+            try {
+              await resetPassword(form.email);
+              setNotice('Σου στείλαμε σύνδεσμο επαναφοράς κωδικού.');
+            } catch (err) { setError(err.message); }
+          }}>Ξέχασα τον κωδικό μου</button>
+        )}
         <p className="small muted">Δεν έχεις λογαριασμό; <Link to="/join">Ξεκίνα εδώ</Link> — ως πελάτης ή θεραπευτής.</p>
-        <div className="divider" />
-        <p className="small muted">
+        {!supabaseEnabled && <div className="divider" />}
+        {!supabaseEnabled && <p className="small muted">
           <b>Demo λογαριασμοί</b><br />
           Μέλος: demo@mindbridge.gr<br />
           Θεραπευτής: therapist1@mindbridge.gr<br />
           Διαχειριστής: admin@mindbridge.gr<br />
-          Κωδικός και για τους δύο: password123
-        </p>
+          Κωδικός για όλους: password123
+        </p>}
       </div>
     </main>
   );

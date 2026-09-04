@@ -1,22 +1,31 @@
+import { accessToken } from './supabase.js';
+
 const json = async (res) => {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Σφάλμα δικτύου');
   return data;
 };
 
-const request = (method) => (path, body) =>
-  fetch(`/api${path}`, {
+// Every call carries the Supabase access token when the project is configured;
+// otherwise the API falls back to its own httpOnly cookie.
+async function request(method, path, body) {
+  const token = await accessToken();
+  const headers = {};
+  if (body) headers['Content-Type'] = 'application/json';
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(`/api${path}`, {
     method,
     credentials: 'include',
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   }).then(json);
+}
 
 export const api = {
-  get: (path) => fetch(`/api${path}`, { credentials: 'include' }).then(json),
-  post: request('POST'),
-  patch: request('PATCH'),
-  del: request('DELETE'),
+  get: (path) => request('GET', path),
+  post: (path, body) => request('POST', path, body),
+  patch: (path, body) => request('PATCH', path, body),
+  del: (path, body) => request('DELETE', path, body),
 };
 
 export const euro = (cents) =>

@@ -61,7 +61,8 @@ export default function GetStarted() {
     e.preventDefault();
     setBusy(true); setError('');
     try {
-      await register({ ...form, intake_token: result.intake_token, plan, billing_period: period });
+      const r = await register({ ...form, intake_token: result.intake_token, plan, billing_period: period });
+      if (r?.needsEmailConfirmation) { setPhase('confirm'); return; }
       if (chosen) await api.post('/match', { therapist_id: chosen.id });
       await refresh();
       setPhase('plan');
@@ -175,6 +176,19 @@ export default function GetStarted() {
               <button className="btn block" disabled={busy}>{busy ? 'Δημιουργία…' : 'Συνέχεια'}</button>
               <p className="small muted">Έχεις ήδη λογαριασμό; <Link to="/login">Σύνδεση</Link></p>
             </form>
+          </div>
+        )}
+
+        {phase === 'confirm' && (
+          <div className="card stack">
+            <span className="pill">Ένα βήμα ακόμα</span>
+            <h1 style={{ fontSize: '1.5rem' }}>Έλεγξε το email σου</h1>
+            <p>
+              Στείλαμε σύνδεσμο επιβεβαίωσης στο <b>{form.email}</b>. Μόλις τον πατήσεις, ο λογαριασμός σου
+              ενεργοποιείται και συνεχίζουμε από εκεί που μείναμε — ο θεραπευτής που διάλεξες σε περιμένει.
+            </p>
+            <p className="small muted">Δεν το βρίσκεις; Κοίτα και στα ανεπιθύμητα.</p>
+            <Link className="btn secondary" to="/login">Πήγαινε στη σύνδεση</Link>
           </div>
         )}
 

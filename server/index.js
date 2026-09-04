@@ -16,6 +16,8 @@ import toolsRoutes from './routes/tools.js';
 import billingRoutes from './routes/billing.js';
 import assessmentRoutes from './routes/assessment.js';
 import { ensureSeed } from './seed.js';
+import { initDb, sql } from './db/index.js';
+import { supabaseAuthEnabled } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -46,9 +48,19 @@ if (fs.existsSync(dist)) {
   app.get('*', (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 }
 
-ensureSeed();
-
 const port = Number(process.env.PORT || 3000);
 const server = http.createServer(app);
 setupRealtime(server);
-server.listen(port, () => console.log(`MindBridge API → http://localhost:${port}`));
+
+await initDb();
+await ensureSeed();
+
+server.listen(port, () => {
+  console.log(`MindBridge API → http://localhost:${port}`);
+  console.log(`  βάση: ${sql.kind === 'postgres' ? 'Supabase Postgres' : 'SQLite (τοπικά)'}`);
+  console.log(`  auth: ${supabaseAuthEnabled ? 'Supabase Auth' : 'τοπικό JWT cookie'}`);
+});
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, async () => { await sql.close(); process.exit(0); });
+}
