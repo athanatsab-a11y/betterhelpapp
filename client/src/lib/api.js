@@ -40,5 +40,9 @@ const AVATAR_COLORS = ['#125c5e', '#1a8a86', '#8a5216', '#4b5d8f', '#7a4a72', '#
 export const avatarColor = (name = '') =>
   AVATAR_COLORS[[...name].reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length];
 
+export const PLAN = { standard: 'Standard', plus: 'Plus', premium: 'Premium' };
+export const PERIOD = { weekly: 'εβδομάδα', monthly: 'μήνα', quarterly: 'τρίμηνο' };
+export const SUB_STATUS = { trialing: 'Δωρεάν δοκιμή', active: 'Ενεργή', paused: 'Σε παύση', cancelled: 'Ακυρωμένη' };
+
 export const MODALITY = { video: 'Βιντεοκλήση', phone: 'Τηλέφωνο', live_chat: 'Live chat', messaging: 'Μηνύματα' };
 export const STATUS = { scheduled: 'Προγραμματισμένη', completed: 'Ολοκληρώθηκε', cancelled: 'Ακυρώθηκε', no_show: 'Δεν προσήλθε' };

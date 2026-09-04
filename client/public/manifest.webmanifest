@@ -1,0 +1,21 @@
+{
+  "name": "MindBridge — Ψυχοθεραπεία online",
+  "short_name": "MindBridge",
+  "description": "Ο θεραπευτικός σου χώρος: μηνύματα, live συνεδρίες, ημερολόγιο και φύλλα εργασίας.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdf8f2",
+  "theme_color": "#125c5e",
+  "lang": "el",
+  "icons": [
+    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Δωμάτιο θεραπείας", "url": "/app/room" },
+    { "name": "Συνεδρίες", "url": "/app/sessions" },
+    { "name": "Ημερολόγιο", "url": "/app/journal" }
+  ]
+}

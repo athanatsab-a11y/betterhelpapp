@@ -117,8 +117,9 @@ function seed() {
     body: 'Η Δρ. Ελένη Παπαδοπούλου σου ανέθεσε: Ημερολόγιο Σκέψεων (CBT)',
     link: '/app/worksheets', read_at: null, created_at: now() });
 
-  // The demo opens signed out so the public flow (questionnaire, matching,
-  // signup) can be explored; the demo bar signs you in with one click.
+  // The demo opens inside the product, signed in as the member; the demo bar
+  // switches to the therapist portal or out to the public site.
+  session = demo.id;
 }
 
 /* ---------------- helpers ---------------- */

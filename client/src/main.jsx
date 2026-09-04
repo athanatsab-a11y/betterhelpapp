@@ -27,3 +27,8 @@ async function start() {
 }
 
 start();
+
+// Installable app shell — skipped in the demo build, which ships as one file.
+if (!DEMO && 'serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}

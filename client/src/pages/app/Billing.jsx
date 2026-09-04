@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, euro, dt } from '../../lib/api.js';
+import { api, euro, dt, PLAN, PERIOD, SUB_STATUS } from '../../lib/api.js';
 import { useAuth } from '../../lib/auth.jsx';
 import { Spinner } from '../../components/common.jsx';
 
@@ -49,9 +49,9 @@ export default function Billing() {
         {sub ? (
           <>
             <p className="small">
-              Πακέτο <b>{sub.plan}</b> · {euro(sub.price_cents)} ανά {sub.billing_period}
+              Πακέτο <b>{PLAN[sub.plan] || sub.plan}</b> · {euro(sub.price_cents)} ανά {PERIOD[sub.billing_period]}
               {sub.discount_pct ? ` (έκπτωση ${sub.discount_pct}%)` : ''}<br />
-              Κατάσταση: <span className={`pill ${sub.status === 'active' ? 'ok' : 'warn'}`}>{sub.status}</span>
+              Κατάσταση: <span className={`pill ${sub.status === 'active' ? 'ok' : 'warn'}`}>{SUB_STATUS[sub.status] || sub.status}</span>
               {sub.renews_at && <> · ανανέωση {dt(sub.renews_at)}</>}
             </p>
             <div className="row">

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MindBridge">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a8a86"/>
+      <stop offset="1" stop-color="#0b3b3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <path d="M136 300c0-70 54-124 120-124s120 54 120 124c0 24-8 44-22 60H158c-14-16-22-36-22-60z" fill="none" stroke="#ffffff" stroke-width="26" stroke-linejoin="round"/>
+  <path d="M186 300c0-40 32-70 70-70s70 30 70 70" fill="none" stroke="#d6efec" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="256" cy="300" r="18" fill="#ffffff"/>
+</svg>

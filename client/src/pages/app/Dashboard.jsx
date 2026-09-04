@@ -1,8 +1,38 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api, dt, euro } from '../../lib/api.js';
+import { api, dt, euro, PLAN, PERIOD, SUB_STATUS } from '../../lib/api.js';
 import { useAuth } from '../../lib/auth.jsx';
 import { Avatar, Spinner, modalityLabel } from '../../components/common.jsx';
+
+const MOOD_FACES = ['😞', '🙁', '😐', '🙂', '😄'];
+
+// Mood is a 1-5 scale, so the bars are drawn against that fixed scale rather
+// than the range of the data — a good week should look like a good week.
+function MoodChart({ trend }) {
+  const days = trend.slice(-14);
+  const avg = days.reduce((a, d) => a + d.mood, 0) / days.length;
+  return (
+    <div className="card stack">
+      <div className="spread">
+        <h3 style={{ marginBottom: 0 }}>Η διάθεσή σου</h3>
+        <span className="small muted">μέσος όρος {avg.toFixed(1)}/5 {MOOD_FACES[Math.round(avg) - 1]}</span>
+      </div>
+      <div className="mood-chart">
+        <div className="mood-scale small muted" aria-hidden="true"><span>5</span><span>3</span><span>1</span></div>
+        <ol className="mood-bars">
+          {days.map((d) => (
+            <li key={d.day}>
+              <span className="bar" style={{ height: `${(d.mood / 5) * 100}%` }}
+                title={`${new Date(d.day).toLocaleDateString('el-GR')}: ${d.mood.toFixed(1)} στα 5`} />
+              <span className="small muted">{new Date(d.day).toLocaleDateString('el-GR', { day: 'numeric', month: 'numeric' })}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <Link className="small" to="/app/journal">Γράψε στο ημερολόγιο →</Link>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { user, match, subscription } = useAuth();
@@ -83,8 +113,10 @@ export default function Dashboard() {
           {subscription ? (
             <>
               <p className="small">
-                <b>{subscription.plan}</b> · {euro(subscription.price_cents)} / {subscription.billing_period}
-                <br /><span className={`pill ${subscription.status === 'active' ? 'ok' : 'warn'}`}>{subscription.status}</span>
+                <b>{PLAN[subscription.plan] || subscription.plan}</b> · {euro(subscription.price_cents)} ανά {PERIOD[subscription.billing_period]}
+                <br /><span className={`pill ${subscription.status === 'active' ? 'ok' : 'warn'}`}>
+                  {SUB_STATUS[subscription.status] || subscription.status}
+                </span>
               </p>
               <Link className="small" to="/app/billing">Διαχείριση →</Link>
             </>
@@ -92,15 +124,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {data.trend?.length > 0 && (
-        <div className="card stack">
-          <h3>Η διάθεσή σου τις τελευταίες μέρες</h3>
-          <div className="sparkline">
-            {data.trend.map((d) => <i key={d.day} style={{ height: `${(d.mood / 5) * 100}%` }} title={`${d.day}: ${d.mood.toFixed(1)}/5`} />)}
-          </div>
-          <Link className="small" to="/app/journal">Γράψε στο ημερολόγιο →</Link>
-        </div>
-      )}
+      {data.trend?.length > 0 && <MoodChart trend={data.trend} />}
     </div>
   );
 }

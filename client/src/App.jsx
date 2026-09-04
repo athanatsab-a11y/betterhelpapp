@@ -1,9 +1,11 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from './lib/auth.jsx';
 import { connectSocket } from './lib/socket.js';
 import { Header, Footer, Spinner, CrisisBanner } from './components/common.jsx';
 import DemoBar from './components/DemoBar.jsx';
+import AppHeader from './components/AppHeader.jsx';
+import BottomTabs from './components/BottomTabs.jsx';
 
 const DEMO = import.meta.env.VITE_DEMO === '1';
 
@@ -30,6 +32,7 @@ import Billing from './pages/app/Billing.jsx';
 import Account from './pages/app/Account.jsx';
 import SwitchTherapist from './pages/app/SwitchTherapist.jsx';
 import Notifications from './pages/app/Notifications.jsx';
+import More from './pages/app/More.jsx';
 
 import ProviderLayout from './pages/provider/ProviderLayout.jsx';
 import ProviderDashboard from './pages/provider/ProviderDashboard.jsx';
@@ -53,16 +56,34 @@ function Protected({ children, role }) {
   return children;
 }
 
+// The demo is an app demo: opening it drops you inside the product, not on the
+// marketing site (which stays reachable from the account menu).
+function DemoEntry() {
+  const nav = useNavigate();
+  const loc = useLocation();
+  const { user, loading } = useAuth();
+  useEffect(() => {
+    if (!DEMO || loading || !user) return;
+    if (loc.pathname === '/' && !sessionStorage.getItem('mb_demo_entered')) {
+      sessionStorage.setItem('mb_demo_entered', '1');
+      nav(user.role === 'therapist' ? '/provider' : '/app', { replace: true });
+    }
+  }, [loading, user, loc.pathname, nav]);
+  return null;
+}
+
 export default function App() {
   const { user } = useAuth();
   const loc = useLocation();
   useEffect(() => { if (user) connectSocket(); }, [user]);
-  const inApp = loc.pathname.startsWith('/app') || loc.pathname.startsWith('/provider');
+  const inProvider = loc.pathname.startsWith('/provider');
+  const inApp = loc.pathname.startsWith('/app') || inProvider;
 
   return (
     <>
       <ScrollTop />
-      <Header />
+      {DEMO && <DemoEntry />}
+      {inApp ? <AppHeader provider={inProvider} /> : <Header />}
       {DEMO && <DemoBar />}
       {!inApp && <CrisisBanner />}
       <Routes>
@@ -89,6 +110,7 @@ export default function App() {
           <Route path="account" element={<Account />} />
           <Route path="switch-therapist" element={<SwitchTherapist />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="more" element={<More />} />
         </Route>
 
         <Route path="/provider" element={<Protected role="therapist"><ProviderLayout /></Protected>}>
@@ -103,6 +125,7 @@ export default function App() {
 
         <Route path="*" element={<div className="container section center"><h1>404</h1><p>Η σελίδα δεν βρέθηκε.</p></div>} />
       </Routes>
+      {inApp && <BottomTabs provider={inProvider} />}
       {!inApp && <Footer />}
     </>
   );
