@@ -15,7 +15,7 @@ export default function Sessions() {
     api.get('/sessions').then((d) => setSessions(d.sessions)).catch(() => setSessions([]));
     if (match) api.get(`/therapists/${match.id}/slots`).then((d) => setSlots(d.slots)).catch(() => {});
   };
-  useEffect(load, [match?.id]);
+  useEffect(() => { load(); }, [match?.id]);
 
   const book = async (slot) => {
     setBusy(true); setMsg('');

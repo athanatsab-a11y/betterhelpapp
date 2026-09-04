@@ -10,7 +10,7 @@ export default function Journal() {
   const [busy, setBusy] = useState(false);
 
   const load = () => api.get('/journal').then((d) => setEntries(d.entries)).catch(() => setEntries([]));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const save = async (e) => {
     e.preventDefault();

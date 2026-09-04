@@ -11,7 +11,7 @@ export default function Billing() {
   const [busy, setBusy] = useState(false);
 
   const load = () => api.get('/subscription').then(setData).catch(() => setData(null));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const act = async (fn) => {
     setBusy(true); setMsg('');

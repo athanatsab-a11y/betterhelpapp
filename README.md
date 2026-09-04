@@ -44,6 +44,16 @@ Landing page, «Πώς λειτουργεί», τιμοκατάλογος με �
 - **Frontend**: React 18, React Router 6, Vite — χωρίς UI framework, custom design system σε CSS.
 - **Βάση**: SQLite (WAL), 17 πίνακες, foreign keys ενεργά.
 
+## Demo χωρίς server
+
+```bash
+npm run build:demo    # -> demo/mindbridge-demo.html (ένα αυτόνομο αρχείο ~300 KB)
+```
+
+Ο ίδιος React κώδικας χτίζεται με `VITE_DEMO=1`: hash routing και ένα mock API στον browser
+(`client/src/lib/mockApi.js`) που αναπαράγει τα ίδια routes με κατάσταση στη μνήμη, ώστε το αρχείο να
+τρέχει από οποιονδήποτε στατικό host χωρίς backend. Τα δεδομένα σβήνουν με κάθε refresh.
+
 ## Εκκίνηση
 
 ```bash
@@ -83,19 +93,23 @@ npm test             # 48 end-to-end έλεγχοι στο API
 ## Δομή
 
 ```
+shared/            Κοινός κώδικας API και demo build
+  catalog.js       Ερωτηματολόγιο, ειδικεύσεις, προσεγγίσεις, πακέτα, τιμολόγηση
+  matching-core.js Ο αλγόριθμος αντιστοίχισης (καθαρή συνάρτηση)
+  seed-data.js     Θεραπευτές, φύλλα εργασίας, groupinars
 server/
   index.js         Express app, static SPA, error handling
   db.js            Σχήμα SQLite + helper ειδοποιήσεων
   auth.js          JWT cookies, hashing, guards ρόλων
-  catalog.js       Ερωτηματολόγιο, ειδικεύσεις, προσεγγίσεις, πακέτα, τιμολόγηση
-  matching.js      Αλγόριθμος αντιστοίχισης και ανάθεση θεραπευτή
+  matching.js      Κατάταξη θεραπευτών από τη βάση και ανάθεση
   realtime.js      WebSocket hub (μηνύματα, typing)
   seed.js          Αρχικά δεδομένα
   routes/          auth · intake · therapy · tools · billing
 client/src/
   pages/           Δημόσιες σελίδες, /app (μέλος), /provider (θεραπευτής)
   components/      Header, Footer, κάρτες θεραπευτών, avatars
-  lib/             API client, auth context, WebSocket client
+  lib/             API client, auth context, WebSocket client, mockApi (demo)
+scripts/build-demo.mjs  Πακετάρισμα του demo σε ένα HTML αρχείο
 tests/e2e.mjs      End-to-end έλεγχοι
 ```
 

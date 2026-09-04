@@ -6,7 +6,7 @@ import { Spinner, modalityLabel } from '../../components/common.jsx';
 export default function ProviderSessions() {
   const [rows, setRows] = useState(null);
   const load = () => api.get('/sessions').then((d) => setRows(d.sessions)).catch(() => setRows([]));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
   if (!rows) return <Spinner />;
 
   const mark = async (s, status) => { await api.patch(`/sessions/${s.id}`, { status }); load(); };

@@ -205,3 +205,8 @@ textarea { min-height: 110px; resize: vertical; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .sparkline { display: flex; align-items: flex-end; gap: 4px; height: 70px; }
 .sparkline i { flex: 1; background: var(--teal-500); border-radius: 3px 3px 0 0; min-height: 3px; }
+
+/* ---------- demo build only ---------- */
+.demo-bar { background: var(--teal-900); color: #e7f2f1; padding: .5rem 0; }
+.demo-bar .btn.small { padding: .3rem .8rem; }
+.demo-bar .btn.secondary { background: transparent; color: #e7f2f1; border-color: #4d8b88; }

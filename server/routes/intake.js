@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import crypto from 'node:crypto';
 import { db } from '../db.js';
-import { questionnaireWithOptions, riskFromAnswers, SPECIALTIES, APPROACHES, PLANS } from '../catalog.js';
+import { questionnaireWithOptions, riskFromAnswers, SPECIALTIES, APPROACHES, PLANS } from '../../shared/catalog.js';
 import { rankTherapists, assignTherapist } from '../matching.js';
 import { requireAuth } from '../auth.js';
 

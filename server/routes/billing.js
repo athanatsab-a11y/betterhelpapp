@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import { requireAuth } from '../auth.js';
-import { PLANS, planPrice } from '../catalog.js';
+import { PLANS, planPrice } from '../../shared/catalog.js';
 
 const router = Router();
 

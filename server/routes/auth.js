@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db.js';
 import { hashPassword, checkPassword, issueToken, clearToken, requireAuth, publicUser } from '../auth.js';
 import { assignTherapist, rankTherapists } from '../matching.js';
-import { planPrice } from '../catalog.js';
+import { planPrice } from '../../shared/catalog.js';
 
 const router = Router();
 

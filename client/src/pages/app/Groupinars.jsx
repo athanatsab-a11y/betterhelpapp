@@ -5,7 +5,7 @@ import { Spinner } from '../../components/common.jsx';
 export default function Groupinars() {
   const [rows, setRows] = useState(null);
   const load = () => api.get('/groupinars').then((d) => setRows(d.groupinars)).catch(() => setRows([]));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const toggle = async (g) => {
     if (g.is_registered) await api.del(`/groupinars/${g.id}/register`);

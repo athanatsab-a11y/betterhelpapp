@@ -8,7 +8,7 @@ export default function ProviderAvailability() {
   const [msg, setMsg] = useState('');
 
   const load = () => api.get('/provider/availability').then((d) => setSlots(d.slots)).catch(() => setSlots([]));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const add = async (e) => {
     e.preventDefault(); setMsg('');

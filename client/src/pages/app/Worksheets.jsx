@@ -9,7 +9,7 @@ export default function Worksheets() {
   const [busy, setBusy] = useState(false);
 
   const load = () => api.get('/worksheets').then(setData).catch(() => setData({ library: [], assignments: [] }));
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const open = (a) => { setActive(a); setAnswers(a.answers || {}); };
 

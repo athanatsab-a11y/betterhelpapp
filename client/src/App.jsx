@@ -3,6 +3,9 @@ import { useEffect } from 'react';
 import { useAuth } from './lib/auth.jsx';
 import { connectSocket } from './lib/socket.js';
 import { Header, Footer, Spinner, CrisisBanner } from './components/common.jsx';
+import DemoBar from './components/DemoBar.jsx';
+
+const DEMO = import.meta.env.VITE_DEMO === '1';
 
 import Home from './pages/Home.jsx';
 import HowItWorks from './pages/HowItWorks.jsx';
@@ -60,6 +63,7 @@ export default function App() {
     <>
       <ScrollTop />
       <Header />
+      {DEMO && <DemoBar />}
       {!inApp && <CrisisBanner />}
       <Routes>
         <Route path="/" element={<Home />} />
