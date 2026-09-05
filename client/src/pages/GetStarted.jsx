@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, euro } from '../lib/api.js';
 import { useAuth } from '../lib/auth.jsx';
-import { TherapistCard, Spinner } from '../components/common.jsx';
+import { Spinner } from '../components/common.jsx';
 
 export default function GetStarted() {
   const [params] = useSearchParams();
@@ -14,8 +14,7 @@ export default function GetStarted() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({ service: params.get('service') || undefined });
   const [result, setResult] = useState(null);      // { intake_token, matches, risk_level }
-  const [chosen, setChosen] = useState(null);
-  const [phase, setPhase] = useState('quiz');      // quiz | matches | signup | plan | done
+  const [phase, setPhase] = useState('quiz');      // quiz | signup | confirm | plan
   const [form, setForm] = useState({ display_name: '', nickname: '', email: '', password: '' });
   const [plan, setPlan] = useState(params.get('plan') || 'standard');
   const [period, setPeriod] = useState(params.get('period') || 'monthly');
@@ -55,13 +54,16 @@ export default function GetStarted() {
     try {
       const d = await api.post('/intake', { answers: current });
       setResult(d);
-      setPhase('matches');
+      // Signed-in members are re-matched on the spot; new users create their
+      // account first — the match is made for them at registration.
+      if (user) {
+        await api.post('/match', {});
+        await refresh();
+        nav('/app');
+        return;
+      }
+      setPhase('signup');
     } catch (e) { setError(e.message); } finally { setBusy(false); }
-  };
-
-  const chooseTherapist = (t) => {
-    setChosen(t);
-    setPhase(user ? 'plan' : 'signup');
   };
 
   const doSignup = async (e) => {
@@ -70,7 +72,6 @@ export default function GetStarted() {
     try {
       const r = await register({ ...form, intake_token: result.intake_token, plan, billing_period: period });
       if (r?.needsEmailConfirmation) { setPhase('confirm'); return; }
-      if (chosen) await api.post('/match', { therapist_id: chosen.id });
       await refresh();
       setPhase('plan');
     } catch (err) { setError(err.message); } finally { setBusy(false); }
@@ -82,7 +83,7 @@ export default function GetStarted() {
     try {
       await api.post('/subscription', { plan, billing_period: period, card_number: e.target.card?.value || '' });
       await refresh();
-      nav('/app/assessment');
+      nav('/app');
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
 
@@ -128,9 +129,9 @@ export default function GetStarted() {
           </>
         )}
 
-        {phase === 'matches' && (
-          <>
-            {result.crisis && (
+        {phase === 'signup' && (
+          <div className="stack">
+            {result?.crisis && (
               <div className="card" style={{ borderColor: 'var(--danger)' }}>
                 <h3 style={{ color: 'var(--danger)' }}>Θέλουμε να είσαι ασφαλής</h3>
                 <p className="small">
@@ -141,33 +142,14 @@ export default function GetStarted() {
                 <Link className="btn secondary small" to="/crisis">Γραμμές άμεσης βοήθειας</Link>
               </div>
             )}
-            <h1 style={{ fontSize: '1.7rem' }}>Βρήκαμε {result.matches.length} θεραπευτές για σένα</h1>
-            <p className="muted small">
-              Η κατάταξη βασίζεται στα θέματα που δήλωσες, τη γλώσσα, τις προτιμήσεις σου και τη διαθεσιμότητα.
-              Μπορείς να αλλάξεις θεραπευτή οποτεδήποτε, χωρίς χρέωση.
-            </p>
-            <div className="grid grid-2">
-              {result.matches.map((t, i) => (
-                <TherapistCard
-                  key={t.id} t={t}
-                  footer={
-                    <div className="row">
-                      {i === 0 && <span className="pill">Καλύτερη αντιστοίχιση</span>}
-                      <button className="btn small" onClick={() => chooseTherapist(t)}>Επίλεξε</button>
-                      <Link className="btn small ghost" to={`/therapists/${t.id}`}>Προφίλ</Link>
-                    </div>
-                  }
-                />
-              ))}
-            </div>
-            <button className="btn ghost" onClick={() => { setPhase('quiz'); setStep(0); }}>← Άλλαξε τις απαντήσεις μου</button>
-          </>
-        )}
 
-        {phase === 'signup' && (
-          <div className="card stack">
+            <div className="card stack">
+            <span className="pill">Βήμα 2 από 3</span>
             <h1 style={{ fontSize: '1.6rem' }}>Δημιούργησε τον λογαριασμό σου</h1>
-            <p className="small muted">Επέλεξες: <b>{chosen?.display_name}</b>. Μπορείς να χρησιμοποιήσεις ψευδώνυμο — δεν χρειάζεται το πραγματικό σου όνομα.</p>
+            <p className="small muted">
+              Βρήκαμε {result?.matches?.length ?? 5} θεραπευτές που ταιριάζουν στις ανάγκες σου και θα σε συνδέσουμε
+              με τον καταλληλότερο. Μπορείς να χρησιμοποιήσεις ψευδώνυμο — δεν χρειάζεται το πραγματικό σου όνομα.
+            </p>
             <form onSubmit={doSignup} className="stack">
               <div className="field">
                 <label htmlFor="dn">Όνομα ή ψευδώνυμο</label>
@@ -185,6 +167,7 @@ export default function GetStarted() {
               <button className="btn block" disabled={busy}>{busy ? 'Δημιουργία…' : 'Συνέχεια'}</button>
               <p className="small muted">Έχεις ήδη λογαριασμό; <Link to="/login">Σύνδεση</Link></p>
             </form>
+            </div>
           </div>
         )}
 
@@ -203,6 +186,7 @@ export default function GetStarted() {
 
         {phase === 'plan' && (
           <div className="stack">
+            <span className="pill">Βήμα 3 από 3</span>
             <h1 style={{ fontSize: '1.6rem' }}>Διάλεξε το πακέτο σου</h1>
             <p className="small muted">Η πρώτη εβδομάδα είναι δωρεάν. Ακύρωση οποτεδήποτε.</p>
             <div className="row">
