@@ -33,8 +33,15 @@ export default function GetStarted() {
   const pick = (value) => {
     if (!q) return;
     if (q.type === 'multi') {
+      const exclusive = q.options.filter((o) => o.exclusive).map((o) => o.value);
       const cur = new Set(answers[q.id] || []);
       cur.has(value) ? cur.delete(value) : cur.add(value);
+      // "Δεν ξέρω" cannot sit next to a real preference, in either direction.
+      if (exclusive.includes(value)) {
+        setAnswers({ ...answers, [q.id]: cur.has(value) ? [value] : [] });
+        return;
+      }
+      exclusive.forEach((x) => cur.delete(x));
       setAnswers({ ...answers, [q.id]: [...cur] });
     } else {
       setAnswers({ ...answers, [q.id]: value });
@@ -93,13 +100,15 @@ export default function GetStarted() {
             <div className="progress"><i style={{ width: `${(step / questions.length) * 100}%` }} /></div>
             <p className="small muted">Ερώτηση {step + 1} από {questions.length}</p>
             <h1 style={{ fontSize: '1.7rem' }}>{q.title}</h1>
+            {q.subtitle && <p className="muted">{q.subtitle}</p>}
             {q.type === 'multi' && <p className="small muted">Μπορείς να διαλέξεις περισσότερα από ένα.</p>}
             <div>
               {q.options.map((o) => {
                 const on = q.type === 'multi' ? (answers[q.id] || []).includes(o.value) : selected === o.value;
                 return (
                   <button type="button" key={o.value} className={`choice ${on ? 'selected' : ''}`} onClick={() => pick(o.value)}>
-                    {o.label}
+                    <span className="choice-label">{o.label}</span>
+                    {o.hint && <span className="choice-hint">{o.hint}</span>}
                   </button>
                 );
               })}

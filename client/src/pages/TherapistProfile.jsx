@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, dt, firstName } from '../lib/api.js';
-import { Avatar, Spinner, useSpecialtyLabels } from '../components/common.jsx';
+import { Avatar, Spinner, useSpecialtyLabels, useApproachInfo } from '../components/common.jsx';
 
 export default function TherapistProfile() {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const labels = useSpecialtyLabels();
+  const approachInfo = useApproachInfo();
 
   useEffect(() => { api.get(`/therapists/${id}`).then(setData).catch(() => setData({ error: true })); }, [id]);
 
@@ -33,8 +34,18 @@ export default function TherapistProfile() {
         <div className="card stack">
           <h3>Σχετικά</h3>
           <p className="small">{t.bio}</p>
+          <div>
+            <h4 style={{ marginBottom: '.4rem' }}>Πώς δουλεύει</h4>
+            <dl className="approach-list">
+              {t.approaches.map((a) => (
+                <div key={a}>
+                  <dt>{approachInfo[a]?.label || labels[a] || a}</dt>
+                  {approachInfo[a]?.hint && <dd className="small muted">{approachInfo[a].hint}</dd>}
+                </div>
+              ))}
+            </dl>
+          </div>
           <div className="small muted">
-            Προσεγγίσεις: {t.approaches.map((a) => labels[a] || a).join(', ')}<br />
             Γλώσσες: {t.languages.map((l) => ({ el: 'Ελληνικά', en: 'Αγγλικά', de: 'Γερμανικά' }[l] || l)).join(', ')}<br />
             {t.faith_based ? 'Προσφέρει θεραπεία με πνευματική διάσταση' : 'Κοσμική προσέγγιση'}
             {t.lgbtq_friendly ? ' · ΛΟΑΤΚΙ+ φιλικό περιβάλλον' : ''}

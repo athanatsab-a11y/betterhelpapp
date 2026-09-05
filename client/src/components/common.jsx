@@ -125,6 +125,19 @@ export function TherapistCard({ t, footer }) {
   );
 }
 
+let approachCache = null;
+export function useApproachInfo() {
+  const [info, setInfo] = useState(approachCache || {});
+  useEffect(() => {
+    if (approachCache) return;
+    fetch('/api/questionnaire').then((r) => r.json()).then((d) => {
+      approachCache = Object.fromEntries(d.approaches.map((a) => [a.key, a]));
+      setInfo(approachCache);
+    }).catch(() => {});
+  }, []);
+  return info;
+}
+
 let specialtyCache = null;
 export function useSpecialtyLabels() {
   const [labels, setLabels] = useState(specialtyCache || {});
