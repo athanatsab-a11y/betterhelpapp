@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import AuthShell from '../components/AuthShell.jsx';
 import { useAuth } from '../lib/auth.jsx';
 
 export default function Login() {
@@ -23,10 +24,12 @@ export default function Login() {
     } finally { setBusy(false); }
   };
 
+  // Demo accounts exist only in local development and in the static demo build.
+  const showDemoAccounts = import.meta.env.DEV || import.meta.env.VITE_DEMO === '1';
+
   return (
-    <main className="container section" style={{ maxWidth: 440 }}>
-      <div className="card stack">
-        <h1 style={{ fontSize: '1.7rem' }}>Σύνδεση</h1>
+    <AuthShell>
+      <h1 className="auth-title">Σύνδεση</h1>
         <form onSubmit={submit} className="stack">
           <div className="field">
             <label htmlFor="email">Email</label>
@@ -51,15 +54,14 @@ export default function Login() {
           }}>Ξέχασα τον κωδικό μου</button>
         )}
         <p className="small muted">Δεν έχεις λογαριασμό; <Link to="/join">Ξεκίνα εδώ</Link> — ως πελάτης ή θεραπευτής.</p>
-        {!supabaseEnabled && <div className="divider" />}
-        {!supabaseEnabled && <p className="small muted">
+        {showDemoAccounts && <div className="divider" />}
+        {showDemoAccounts && <p className="small muted">
           <b>Demo λογαριασμοί</b><br />
           Μέλος: demo@mindbridge.gr<br />
           Θεραπευτής: therapist1@mindbridge.gr<br />
           Διαχειριστής: admin@mindbridge.gr<br />
           Κωδικός για όλους: password123
         </p>}
-      </div>
-    </main>
+    </AuthShell>
   );
 }

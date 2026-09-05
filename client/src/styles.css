@@ -285,6 +285,24 @@ textarea { min-height: 110px; resize: vertical; }
 .list-links a:hover { background: var(--teal-100); text-decoration: none; }
 .list-links a span:nth-child(2) { display: flex; flex-direction: column; }
 
+/* ---------- app entry (welcome / login) ---------- */
+.auth-shell {
+  min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.2rem; padding: 2rem 1.2rem; background:
+    radial-gradient(circle at 20% 0%, var(--teal-100), transparent 55%),
+    radial-gradient(circle at 90% 100%, #f6e4d3, transparent 45%), var(--sand);
+}
+.auth-card {
+  width: min(430px, 100%); background: #fff; border: 1px solid var(--line); border-radius: 18px;
+  padding: 1.8rem; box-shadow: var(--shadow-lg);
+}
+.auth-card.wide { width: min(680px, 100%); }
+.auth-logo { font-size: 1.15rem; margin-bottom: 1.2rem; }
+.auth-title { font-size: 1.75rem; margin-bottom: .4rem; }
+.auth-points { margin: 1.4rem 0 0; padding-inline-start: 1.1rem; color: var(--muted); }
+.auth-points li + li { margin-top: .3rem; }
+.auth-foot { text-align: center; color: var(--muted); max-width: 430px; }
+
 /* ---------- role chooser, application form, assessment ---------- */
 .role-card { border-top: 4px solid var(--teal-500); }
 .role-card:last-child { border-top-color: var(--amber); }

@@ -5,7 +5,7 @@ import { useAuth } from '../lib/auth.jsx';
 // Only rendered in the static demo build: switches between the two portals and
 // the public site without typing credentials.
 export default function DemoBar() {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const [busy, setBusy] = useState(false);
   const nav = useNavigate();
   const loc = useLocation();
@@ -17,7 +17,9 @@ export default function DemoBar() {
 
   const role = loc.pathname.startsWith('/provider') ? 'therapist'
     : loc.pathname.startsWith('/admin') ? 'admin'
-    : loc.pathname.startsWith('/app') ? 'member' : 'public';
+    : loc.pathname.startsWith('/app') ? 'member'
+    : ['/welcome', '/login', '/join', '/apply', '/get-started'].some((p) => loc.pathname.startsWith(p)) ? 'new'
+    : 'public';
 
   return (
     <div className="demo-bar">
@@ -29,6 +31,10 @@ export default function DemoBar() {
           onClick={() => enter('therapist1@mindbridge.gr', '/provider')}>Θεραπευτής</button>
         <button className={role === 'admin' ? 'on' : ''} disabled={busy}
           onClick={() => enter('admin@mindbridge.gr', '/admin')}>Διαχειριστής</button>
+        <button className={role === 'new' ? 'on' : ''} disabled={busy}
+          onClick={async () => { setBusy(true); try { await logout(); nav('/welcome'); } finally { setBusy(false); } }}>
+          Νέος χρήστης
+        </button>
         <button className={role === 'public' ? 'on' : ''} disabled={busy}
           onClick={() => nav('/')}>Δημόσιο site</button>
       </div>

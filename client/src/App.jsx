@@ -19,6 +19,7 @@ import TherapistDirectory from './pages/TherapistDirectory.jsx';
 import TherapistProfile from './pages/TherapistProfile.jsx';
 import GetStarted from './pages/GetStarted.jsx';
 import Login from './pages/Login.jsx';
+import Welcome from './pages/Welcome.jsx';
 import Join from './pages/Join.jsx';
 import ApplyTherapist from './pages/ApplyTherapist.jsx';
 import Admin from './pages/admin/Admin.jsx';
@@ -55,7 +56,7 @@ function Protected({ children, role }) {
   const { user, loading } = useAuth();
   const loc = useLocation();
   if (loading) return <Spinner />;
-  if (!user) return <Navigate to={`/login?next=${encodeURIComponent(loc.pathname)}`} replace />;
+  if (!user) return <Navigate to={`/welcome?next=${encodeURIComponent(loc.pathname)}`} replace />;
   if (role && user.role !== role) return <Navigate to={user.role === 'therapist' ? '/provider' : '/app'} replace />;
   return children;
 }
@@ -82,15 +83,16 @@ export default function App() {
   useEffect(() => { if (user) connectSocket(); }, [user]);
   const inProvider = loc.pathname.startsWith('/provider');
   const inAdmin = loc.pathname.startsWith('/admin');
+  const inAuth = ['/welcome', '/login'].includes(loc.pathname);
   const inApp = loc.pathname.startsWith('/app') || inProvider || inAdmin;
 
   return (
     <>
       <ScrollTop />
       {DEMO && <DemoEntry />}
-      {inApp ? <AppHeader variant={inAdmin ? 'admin' : inProvider ? 'provider' : 'client'} /> : <Header />}
+      {inApp ? <AppHeader variant={inAdmin ? 'admin' : inProvider ? 'provider' : 'client'} /> : inAuth ? null : <Header />}
       {DEMO && <DemoBar />}
-      {!inApp && <CrisisBanner />}
+      {!inApp && !inAuth && <CrisisBanner />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
@@ -104,6 +106,7 @@ export default function App() {
         <Route path="/apply" element={<ApplyTherapist />} />
         <Route path="/get-started" element={<GetStarted />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/welcome" element={<Welcome />} />
 
         <Route path="/app" element={<Protected role="client"><AppLayout /></Protected>}>
           <Route index element={<Dashboard />} />
@@ -136,7 +139,7 @@ export default function App() {
         <Route path="*" element={<div className="container section center"><h1>404</h1><p>Η σελίδα δεν βρέθηκε.</p></div>} />
       </Routes>
       {inApp && !inAdmin && <BottomTabs provider={inProvider} />}
-      {!inApp && <Footer />}
+      {!inApp && !inAuth && <Footer />}
     </>
   );
 }
