@@ -208,15 +208,6 @@ export const QUESTIONNAIRE = [
     ],
   },
   {
-    id: 'faith',
-    title: 'Θέλεις θεραπεία με πνευματική/θρησκευτική διάσταση;',
-    type: 'single',
-    options: [
-      { value: 'no', label: 'Όχι' },
-      { value: 'yes', label: 'Ναι' },
-    ],
-  },
-  {
     id: 'modality',
     title: 'Πώς προτιμάς να επικοινωνείς;',
     type: 'multi',

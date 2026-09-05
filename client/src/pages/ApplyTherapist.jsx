@@ -12,7 +12,7 @@ export default function ApplyTherapist() {
     display_name: '', email: '', password: '', phone: '',
     credentials: '', license_no: '', years_experience: '', gender: '',
     headline: '', bio: '', languages: ['el'], specialties: [], approaches: [],
-    max_clients: 20, avg_response_hours: 12, faith_based: false, lgbtq_friendly: true,
+    max_clients: 20, avg_response_hours: 12, lgbtq_friendly: true,
   });
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -167,11 +167,6 @@ export default function ApplyTherapist() {
               <input id="rh" type="number" min="1" value={form.avg_response_hours} onChange={set('avg_response_hours')} />
             </div>
           </div>
-          <label className="row small" style={{ fontWeight: 400 }}>
-            <input type="checkbox" style={{ width: 'auto' }} checked={form.faith_based}
-              onChange={(e) => setForm({ ...form, faith_based: e.target.checked })} />
-            Προσφέρω θεραπεία με πνευματική/θρησκευτική διάσταση όταν ζητηθεί
-          </label>
           <label className="row small" style={{ fontWeight: 400 }}>
             <input type="checkbox" style={{ width: 'auto' }} checked={form.lgbtq_friendly}
               onChange={(e) => setForm({ ...form, lgbtq_friendly: e.target.checked })} />

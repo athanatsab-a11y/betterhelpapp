@@ -47,8 +47,7 @@ export default function TherapistProfile() {
           </div>
           <div className="small muted">
             Γλώσσες: {t.languages.map((l) => ({ el: 'Ελληνικά', en: 'Αγγλικά', de: 'Γερμανικά' }[l] || l)).join(', ')}<br />
-            {t.faith_based ? 'Προσφέρει θεραπεία με πνευματική διάσταση' : 'Κοσμική προσέγγιση'}
-            {t.lgbtq_friendly ? ' · ΛΟΑΤΚΙ+ φιλικό περιβάλλον' : ''}
+            {t.lgbtq_friendly ? 'ΛΟΑΤΚΙ+ φιλικό περιβάλλον' : ''}
           </div>
           <div>{t.accepting_clients ? <span className="pill ok">Δέχεται νέα μέλη</span> : <span className="pill warn">Πλήρες πρόγραμμα</span>}</div>
         </div>

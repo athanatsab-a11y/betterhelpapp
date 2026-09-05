@@ -38,11 +38,6 @@ export function scoreTherapists(rows, answers = {}, limit = 5) {
       else score -= 18;
     }
 
-    if (answers.faith === 'yes') {
-      if (t.faith_based) { score += 12; reasons.push('προσφέρει θεραπεία με πνευματική διάσταση'); }
-      else score -= 10;
-    }
-
     if (wanted.includes('lgbtq') && t.lgbtq_friendly) score += 8;
     if (answers.service === 'couples' && specialties.includes('relationships')) score += 12;
     if (answers.service === 'teen' && specialties.includes('parenting')) score += 8;
