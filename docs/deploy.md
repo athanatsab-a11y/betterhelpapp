@@ -35,7 +35,36 @@
 - `SUPABASE_URL`
 - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 
-## 2. Πού θα τρέχει
+## 2. Ο γρήγορος δρόμος: δημοσίευση μόνο από τον browser
+
+Δεν χρειάζεται να εγκαταστήσεις τίποτα στον υπολογιστή σου. Ο κώδικας είναι ήδη
+στο GitHub και το χτίσιμο γίνεται στο cloud.
+
+1. **Supabase** → New project. Κράτα το `Project URL`, το `anon key` και το
+   `connection string` (Project Settings → Database → Connection string → URI).
+2. **Σχήμα**: SQL Editor → αντίγραψε ολόκληρο το
+   [`supabase/migrations/0001_init.sql`](../supabase/migrations/0001_init.sql) →
+   Run. (Ισοδύναμο με το `npm run db:migrate`, χωρίς Node.)
+3. **Render** ([render.com](https://render.com)) → New → Web Service → σύνδεσε το
+   GitHub repo και διάλεξε το branch. Ρυθμίσεις:
+   - Build command: `npm ci && npm run build`
+   - Start command: `npm start`
+   - Health check path: `/api/health`
+   - Environment variables: `NODE_ENV`, `DATABASE_URL`, `SUPABASE_URL`,
+     `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `ALLOWED_ORIGINS`
+4. **Auth**: Supabase → Authentication → URL Configuration → βάλε τη διεύθυνση
+   που σου έδωσε το Render σε Site URL και Redirect URLs.
+5. **Διαχειριστής**: Authentication → Users → Add user (με Auto Confirm), και
+   μετά τρέξε το [`supabase/create-admin.sql`](../supabase/create-admin.sql)
+   στον SQL Editor.
+6. **Θεραπευτές**: μπες στο `/admin`, ενέκρινε αιτήσεις. Χωρίς εγκεκριμένο
+   θεραπευτή η αντιστοίχιση δεν έχει τι να προτείνει.
+
+Στο δωρεάν πλάνο του Render η υπηρεσία «κοιμάται» μετά από αδράνεια και η πρώτη
+επίσκεψη αργεί μερικά δευτερόλεπτα. Για πραγματικούς χρήστες θέλει πληρωμένο
+πλάνο ή άλλον πάροχο.
+
+## 3. Πού θα τρέχει (αναλυτικά)
 
 ### Επιλογή A — Render / Railway / Fly.io (το πιο γρήγορο)
 
@@ -81,7 +110,7 @@ Supabase. Μπροστά του βάλε Caddy ή Nginx για TLS — **η HTTP
 προαιρετική**: χωρίς αυτήν δεν εγκαθίσταται η εφαρμογή στο κινητό (PWA), δεν
 δουλεύει ο service worker και τα cookies δεν είναι ασφαλή.
 
-## 3. Μετά την πρώτη εκκίνηση
+## 4. Μετά την πρώτη εκκίνηση
 
 1. **Migrations** (αν δεν τα έτρεξες ήδη): `DATABASE_URL=... npm run db:migrate`
 2. **Λογαριασμός διαχειριστή** — δικός σου, με δικό σου κωδικό:
@@ -99,12 +128,12 @@ Supabase. Μπροστά του βάλε Caddy ή Nginx για TLS — **η HTTP
 Τα demo δεδομένα (12 θεραπευτές, `password123`) **δεν** δημιουργούνται όταν
 `NODE_ENV=production`. Αν τα θέλεις σε staging, βάλε `SEED_DEMO=1`.
 
-## 4. Ενημερώσεις
+## 5. Ενημερώσεις
 
 Κάθε νέα έκδοση: `git pull && npm ci && npm run build && restart`. Τα migrations
 είναι ξεχωριστά και τρέχουν μόνα τους μία φορά (`npm run db:migrate`).
 
-## 5. Αντίγραφα ασφαλείας
+## 6. Αντίγραφα ασφαλείας
 
 Το Supabase κρατά αυτόματα backups στα πληρωμένα πλάνα — επιβεβαίωσε τη
 συχνότητα και δοκίμασε **μία φορά** την επαναφορά. Για δικό σου αντίγραφο:
