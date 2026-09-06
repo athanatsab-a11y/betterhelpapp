@@ -264,5 +264,53 @@ check('Θεραπευτής δεν βλέπει τα συγκεντρωτικά'
 const anonStats = await get('anonY', '/admin/analytics');
 check('Ανώνυμος δεν βλέπει τα συγκεντρωτικά', anonStats.status === 401, String(anonStats.status));
 
+// 15. Βιντεοκλήσεις: ρυθμίσεις ICE και σηματοδοσία μόνο μεταξύ των δύο συμμετεχόντων
+const ice = await get('client', '/ice-servers');
+check('Ρυθμίσεις ICE', ice.status === 200 && Array.isArray(ice.data.iceServers) && ice.data.iceServers[0].urls.length > 0,
+  JSON.stringify(ice.data));
+const iceAnon = await get('anonZ', '/ice-servers');
+check('Οι ρυθμίσεις ICE θέλουν σύνδεση', iceAnon.status === 401, String(iceAnon.status));
+
+const { WebSocket } = await import('ws');
+const socket = (who) => new Promise((resolve, reject) => {
+  const ws = new WebSocket('ws://localhost:3000/ws', { headers: { Cookie: jars[who] } });
+  const inbox = [];
+  ws.on('message', (raw) => inbox.push(JSON.parse(raw.toString())));
+  ws.on('open', () => resolve({ ws, inbox }));
+  ws.on('error', reject);
+});
+const waitFor = async (inbox, type, ms = 1500) => {
+  const until = Date.now() + ms;
+  while (Date.now() < until) {
+    const hit = inbox.find((m) => m.type === type);
+    if (hit) return hit;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return null;
+};
+
+// Το ζευγάρι πελάτη–θεραπευτή του δωματίου που φτιάχτηκε νωρίτερα
+const pair = await get('client', '/rooms');
+const liveRoom = pair.data.rooms.find((r) => r.status === 'active');
+const a = await socket('client');
+const t = await socket('therapist2');
+const outsiderSocket = await socket('outsider');
+await new Promise((r) => setTimeout(r, 300));
+
+a.ws.send(JSON.stringify({ type: 'call:offer', room_id: liveRoom.room_id, sdp: { type: 'offer', sdp: 'v=0' } }));
+const relayed = await waitFor(t.inbox, 'call:offer');
+check('Η σηματοδοσία φτάνει στον συνομιλητή', !!relayed && relayed.sdp.sdp === 'v=0', JSON.stringify(relayed));
+check('Η σηματοδοσία δεν διαρρέει σε τρίτους', !(await waitFor(outsiderSocket.inbox, 'call:offer', 400)));
+
+a.ws.send(JSON.stringify({ type: 'read', room_id: liveRoom.room_id }));
+check('Ειδοποίηση ανάγνωσης', !!(await waitFor(t.inbox, 'read')));
+
+outsiderSocket.ws.send(JSON.stringify({ type: 'call:offer', room_id: liveRoom.room_id, sdp: { type: 'offer', sdp: 'κακόβουλο' } }));
+const leaked = await waitFor(t.inbox, 'call:offer', 400);
+check('Ξένος δεν μπορεί να στείλει σηματοδοσία σε δωμάτιο άλλων',
+  !leaked || leaked.sdp.sdp !== 'κακόβουλο');
+
+[a, t, outsiderSocket].forEach((s) => s.ws.close());
+
 console.log(failures ? `\n${failures} έλεγχοι απέτυχαν` : '\nΌλοι οι έλεγχοι πέρασαν');
 process.exit(failures ? 1 : 0);

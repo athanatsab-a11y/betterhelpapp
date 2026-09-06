@@ -16,9 +16,14 @@ export async function connectSocket() {
     let msg; try { msg = JSON.parse(e.data); } catch { return; }
     listeners.forEach((fn) => fn(msg));
   };
-  ws.onopen = () => { retry = 0; };
+  ws.onopen = () => {
+    const wasDown = retry > 0;
+    retry = 0;
+    listeners.forEach((fn) => fn({ type: 'socket:open', reconnected: wasDown }));
+  };
   ws.onclose = () => {
     ws = null;
+    listeners.forEach((fn) => fn({ type: 'socket:close' }));
     retry = Math.min(retry + 1, 6);
     setTimeout(connectSocket, 500 * 2 ** retry);
   };

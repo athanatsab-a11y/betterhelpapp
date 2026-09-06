@@ -196,6 +196,13 @@ textarea { min-height: 110px; resize: vertical; }
 .bubble.mine { align-self: flex-end; background: var(--teal-500); color: #fff; border-color: var(--teal-500); }
 .bubble .meta { font-size: .72rem; opacity: .75; margin-top: .3rem; }
 .bubble.system { align-self: center; background: var(--teal-100); border: 0; font-size: .85rem; }
+.bubble.sending { opacity: .6; }
+.bubble.failed { background: var(--danger); border-color: var(--danger); }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+.presence-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok);
+  margin-inline-end: .35rem; vertical-align: middle;
+}
 .composer { display: flex; gap: .6rem; padding-top: .8rem; border-top: 1px solid var(--line); }
 .composer textarea { min-height: 52px; }
 .composer .btn { border-radius: 12px; align-self: stretch; }
@@ -292,6 +299,24 @@ textarea { min-height: 110px; resize: vertical; }
 .list-links a:last-child { border-bottom: 0; }
 .list-links a:hover { background: var(--teal-100); text-decoration: none; }
 .list-links a span:nth-child(2) { display: flex; flex-direction: column; }
+
+/* ---------- βιντεοκλήση ---------- */
+.call-stage {
+  position: relative; background: var(--teal-900); color: #fff; border-radius: var(--radius);
+  aspect-ratio: 16 / 10; overflow: hidden; display: grid; place-items: center;
+}
+@media (max-width: 700px) { .call-stage { aspect-ratio: 3 / 4; } }
+.call-remote { width: 100%; height: 100%; object-fit: cover; background: var(--teal-900); }
+.call-overlay { position: absolute; inset: 0; display: grid; place-content: center; gap: .5rem; background: var(--teal-900); }
+.call-local {
+  position: absolute; inset-block-end: 12px; inset-inline-end: 12px; width: 28%; max-width: 190px;
+  aspect-ratio: 3 / 4; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,.35);
+  background: #0b3b3c;
+}
+.call-timer {
+  position: absolute; inset-block-start: 12px; inset-inline-start: 12px; background: rgba(0,0,0,.45);
+  padding: .2rem .6rem; border-radius: 999px; font-size: .82rem; font-variant-numeric: tabular-nums;
+}
 
 /* ---------- admin analytics ---------- */
 .tabs { display: flex; gap: .3rem; border-bottom: 1px solid var(--line); margin-bottom: .4rem; }

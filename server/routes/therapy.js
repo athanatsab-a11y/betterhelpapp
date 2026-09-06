@@ -83,6 +83,23 @@ router.post('/rooms/:id/messages', requireAuth, ah(async (req, res) => {
   res.status(201).json({ message });
 }));
 
+/* ---------- WebRTC ---------- */
+
+// Οι διευθύνσεις που χρειάζεται ο browser για να στήσει την απευθείας σύνδεση.
+// Χωρίς TURN, ένα μικρό ποσοστό δικτύων (αυστηρά εταιρικά NAT) δεν τα καταφέρνει·
+// γι' αυτό ο πάροχος TURN δηλώνεται με μεταβλητές περιβάλλοντος.
+router.get('/ice-servers', requireAuth, ah(async (_req, res) => {
+  const iceServers = [{ urls: (process.env.STUN_URLS || 'stun:stun.l.google.com:19302,stun:global.stun.twilio.com:3478').split(',') }];
+  if (process.env.TURN_URL) {
+    iceServers.push({
+      urls: process.env.TURN_URL.split(','),
+      username: process.env.TURN_USERNAME,
+      credential: process.env.TURN_CREDENTIAL,
+    });
+  }
+  res.json({ iceServers, has_turn: Boolean(process.env.TURN_URL) });
+}));
+
 /* ---------- Live sessions ---------- */
 
 router.get('/therapists/:id/slots', requireAuth, ah(async (req, res) => {
@@ -97,17 +114,21 @@ router.get('/therapists/:id/slots', requireAuth, ah(async (req, res) => {
 router.get('/sessions', requireAuth, ah(async (req, res) => {
   const rows = req.user.role === 'therapist'
     ? await sql.all(`
-        SELECT s.*, u.display_name AS client_name
+        SELECT s.*, u.display_name AS client_name, u.display_name AS peer_name,
+               m.client_id AS peer_id, r.id AS room_id
         FROM sessions s JOIN matches m ON m.id = s.match_id
         JOIN therapists t ON t.id = m.therapist_id
         JOIN users u ON u.id = m.client_id
+        JOIN rooms r ON r.match_id = m.id
         WHERE t.user_id = ? ORDER BY s.starts_at
       `, [req.user.id])
     : await sql.all(`
-        SELECT s.*, u.display_name AS therapist_name
+        SELECT s.*, u.display_name AS therapist_name, u.display_name AS peer_name,
+               t.user_id AS peer_id, r.id AS room_id
         FROM sessions s JOIN matches m ON m.id = s.match_id
         JOIN therapists t ON t.id = m.therapist_id
         JOIN users u ON u.id = t.user_id
+        JOIN rooms r ON r.match_id = m.id
         WHERE m.client_id = ? ORDER BY s.starts_at
       `, [req.user.id]);
   res.json({ sessions: rows });

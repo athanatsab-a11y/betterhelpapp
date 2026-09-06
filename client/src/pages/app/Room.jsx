@@ -13,6 +13,10 @@ export default function Room({ provider = false }) {
   const [draft, setDraft] = useState('');
   const [typing, setTyping] = useState(false);
   const [sending, setSending] = useState(false);
+  const [pending, setPending] = useState([]);      // μηνύματα που δεν έχουν φύγει ακόμη
+  const [peerOnline, setPeerOnline] = useState(false);
+  const [peerReadAt, setPeerReadAt] = useState(null);
+  const [offline, setOffline] = useState(false);
   const logRef = useRef(null);
   const typingTimer = useRef(null);
 
@@ -31,31 +35,63 @@ export default function Room({ provider = false }) {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => onSocket((msg) => {
-    if (msg.type === 'message' && msg.room_id === roomId) {
+    if (msg.type === 'socket:close') { setOffline(true); return; }
+    if (msg.type === 'socket:open') {
+      setOffline(false);
+      // Ό,τι ήρθε όσο ήμασταν εκτός σύνδεσης το φέρνουμε με ένα φρέσκο φόρτωμα.
+      if (msg.reconnected) load();
+      return;
+    }
+    if (msg.room_id !== roomId) return;
+
+    if (msg.type === 'message') {
       setState((s) => (s ? { ...s, messages: [...s.messages, msg.message] } : s));
       setTyping(false);
+      sendSocket({ type: 'read', room_id: roomId });   // το διαβάσαμε μόλις τώρα
     }
-    if (msg.type === 'typing' && msg.room_id === roomId) {
+    if (msg.type === 'typing') {
       setTyping(true);
       clearTimeout(typingTimer.current);
       typingTimer.current = setTimeout(() => setTyping(false), 3000);
     }
-  }), [roomId]);
+    if (msg.type === 'presence') setPeerOnline(msg.online);
+    if (msg.type === 'read') setPeerReadAt(msg.at);
+  }), [roomId, load]);
+
+  // Μπαίνοντας στο δωμάτιο, ό,τι υπάρχει θεωρείται διαβασμένο.
+  useEffect(() => {
+    if (state?.messages?.length) sendSocket({ type: 'read', room_id: roomId });
+  }, [roomId, state?.messages?.length]);
 
   useEffect(() => { logRef.current?.scrollTo(0, logRef.current.scrollHeight); }, [state?.messages?.length, typing]);
+
+  // Το μήνυμα εμφανίζεται αμέσως· αν η αποστολή αποτύχει μένει σημειωμένο ώστε
+  // να ξαναδοκιμάσει ο χρήστης, αντί να χαθεί.
+  const deliver = async (body, tempId) => {
+    try {
+      const { message } = await api.post(`/rooms/${roomId}/messages`, { body });
+      setPending((p) => p.filter((m) => m.temp_id !== tempId));
+      setState((s) => ({ ...s, messages: [...s.messages, message] }));
+    } catch (err) {
+      setPending((p) => p.map((m) => (m.temp_id === tempId ? { ...m, failed: true, error: err.message } : m)));
+    }
+  };
 
   const send = async (e) => {
     e.preventDefault();
     const body = draft.trim();
     if (!body || sending) return;
+    const tempId = `t${Date.now()}`;
     setSending(true);
-    try {
-      const { message } = await api.post(`/rooms/${roomId}/messages`, { body });
-      setState((s) => ({ ...s, messages: [...s.messages, message] }));
-      setDraft('');
-    } catch (err) {
-      alert(err.message);
-    } finally { setSending(false); }
+    setPending((p) => [...p, { temp_id: tempId, body, failed: false }]);
+    setDraft('');
+    await deliver(body, tempId);
+    setSending(false);
+  };
+
+  const retry = (m) => {
+    setPending((p) => p.map((x) => (x.temp_id === m.temp_id ? { ...x, failed: false } : x)));
+    deliver(m.body, m.temp_id);
   };
 
   if (roomId === 0) {
@@ -83,20 +119,45 @@ export default function Room({ provider = false }) {
           <Avatar name={other.name} />
           <div>
             <b>{other.name}</b>
-            <div className="small muted">{other.sub}</div>
+            <div className="small muted">
+              {peerOnline ? <span className="presence-dot" aria-hidden="true" /> : null}
+              {peerOnline ? 'σε σύνδεση' : other.sub}
+            </div>
           </div>
         </div>
         {!provider && <Link className="btn small secondary" to="/app/sessions">Κλείσε live συνεδρία</Link>}
       </div>
 
+      {offline && <div className="bubble system" style={{ background: '#fdecd8', color: '#8a5216' }}>
+        Χωρίς σύνδεση — τα μηνύματα θα σταλούν μόλις επανέλθει.
+      </div>}
+
       <div className="chat-log" ref={logRef}>
         <div className="bubble system">
           Οι συνομιλίες είναι ιδιωτικές. Σε επείγον περιστατικό κάλεσε 112 ή 1018.
         </div>
-        {state.messages.map((m) => (
-          <div key={m.id} className={`bubble ${m.sender_id === user.id ? 'mine' : ''} ${m.kind === 'system' ? 'system' : ''}`}>
+        {state.messages.map((m, i) => {
+          const mine = m.sender_id === user.id;
+          const isLastMine = mine && !state.messages.slice(i + 1).some((x) => x.sender_id === user.id);
+          const seen = m.read_at || (peerReadAt && new Date(peerReadAt) > new Date(`${m.created_at}Z`.replace('ZZ', 'Z')));
+          return (
+            <div key={m.id} className={`bubble ${mine ? 'mine' : ''} ${m.kind === 'system' ? 'system' : ''}`}>
+              {m.body}
+              <div className="meta">
+                {firstName(m.sender_name)} · {dt(m.created_at)}
+                {isLastMine && <> · {seen ? 'διαβάστηκε' : 'στάλθηκε'}</>}
+              </div>
+            </div>
+          );
+        })}
+        {pending.map((m) => (
+          <div key={m.temp_id} className={`bubble mine ${m.failed ? 'failed' : 'sending'}`}>
             {m.body}
-            <div className="meta">{firstName(m.sender_name)} · {dt(m.created_at)}</div>
+            <div className="meta">
+              {m.failed ? (
+                <>δεν στάλθηκε · <button className="link-btn" onClick={() => retry(m)}>δοκίμασε ξανά</button></>
+              ) : 'αποστολή…'}
+            </div>
           </div>
         ))}
         {typing && <div className="bubble small muted">γράφει…</div>}
