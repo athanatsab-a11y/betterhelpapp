@@ -15,12 +15,12 @@
     "test": "node tests/e2e.mjs",
     "build:demo": "node scripts/build-demo.mjs",
     "db:migrate": "node scripts/migrate.mjs",
-    "db:seed": "node server/seed.js"
+    "db:seed": "node server/seed.js",
+    "create:admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.115.0",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^11.5.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -33,5 +33,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.5.0"
   }
 }

@@ -2,7 +2,11 @@ import { sql, initDb } from './db/index.js';
 import { hashPassword } from './auth.js';
 import { THERAPISTS, WORKSHEETS, REVIEW_BODIES, GROUPINARS } from '../shared/seed-data.js';
 
+// Τα demo δεδομένα (και οι λογαριασμοί με κοινό κωδικό) μπαίνουν μόνο εκεί που
+// τα θέλουμε: τοπική ανάπτυξη και tests. Σε production χρειάζεται ρητό SEED_DEMO=1.
 export async function ensureSeed() {
+  const allowed = process.env.SEED_DEMO === '1' || process.env.NODE_ENV !== 'production';
+  if (!allowed) return;
   const { c } = await sql.get('SELECT COUNT(*) AS c FROM users');
   if (Number(c) > 0) return;
   await seed();

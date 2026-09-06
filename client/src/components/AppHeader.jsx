@@ -39,6 +39,7 @@ export default function AppHeader({ variant = 'client' }) {
                 <b>{user?.display_name}</b>
                 <div className="small muted">{admin ? 'Διαχειριστής' : provider ? 'Θεραπευτής' : 'Μέλος'}</div>
               </div>
+              {admin && <Link to="/admin/analytics">Δεδομένα εφαρμογής</Link>}
               {admin && <Link to="/admin">Αιτήσεις θεραπευτών</Link>}
               {!admin && <Link to={provider ? '/provider/profile' : '/app/account'}>Ρυθμίσεις λογαριασμού</Link>}
               {variant === 'client' && <Link to="/app/billing">Χρεώσεις & συνδρομή</Link>}

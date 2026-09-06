@@ -1,0 +1,11 @@
+node_modules
+client/node_modules
+client/dist
+client/dist-demo
+data
+demo
+docs
+tests
+.git
+.env
+*.log

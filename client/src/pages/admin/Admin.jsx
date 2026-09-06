@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api, dt } from '../../lib/api.js';
 import { Avatar, Spinner, useSpecialtyLabels } from '../../components/common.jsx';
 
@@ -25,6 +26,10 @@ export default function Admin() {
 
   return (
     <main className="app-main stack">
+      <nav className="tabs">
+        <Link to="/admin/analytics">Δεδομένα</Link>
+        <Link to="/admin" className="active">Αιτήσεις</Link>
+      </nav>
       <h1>Αιτήσεις θεραπευτών</h1>
       <div className="row">
         <span className="pill warn">{pending.length} σε αναμονή</span>

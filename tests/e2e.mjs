@@ -241,5 +241,28 @@ const row = list.data.clients.find((c) => c.client_id === me.data.user.id);
 check('Η λίστα πελατών δείχνει τον κίνδυνο από την αξιολόγηση', row?.risk_level === 'crisis', JSON.stringify(row?.risk_level));
 check('Σήμανση ολοκληρωμένης αξιολόγησης', !!row?.has_assessment);
 
+// 14. Πάνελ δεδομένων διαχειριστή
+const stats = await get('admin', '/admin/analytics');
+check('Ο admin βλέπει τα συγκεντρωτικά', stats.status === 200 && stats.data.totals.intakes > 0, JSON.stringify(stats.data?.error));
+check('Κατανομή απαντήσεων ερωτηματολογίου', (stats.data.answers.topics?.items || []).some((i) => i.count > 0));
+check('Οι ετικέτες είναι στα ελληνικά', stats.data.answers.topics.items.every((i) => i.label !== i.key));
+check('Χοάνη με 5 βήματα', stats.data.funnel.length === 5 && stats.data.funnel[0].count >= stats.data.funnel[1].count,
+  JSON.stringify(stats.data.funnel.map((f) => f.count)));
+check('Στατιστικά αξιολόγησης', stats.data.assessment.count >= 2 && stats.data.assessment.mood_avg > 0);
+check('Φόρτος θεραπευτών', stats.data.therapists.some((t) => t.active_clients >= 1));
+check('Δεν εκτίθεται περιεχόμενο θεραπείας',
+  !JSON.stringify(stats.data).includes('Γεια σας, θα ήθελα βοήθεια') && !JSON.stringify(stats.data).includes('Πρώτη μέρα'));
+
+const csv = await call('admin', 'GET', '/admin/analytics.csv');
+const csvBody = csv.data;
+check('Εξαγωγή CSV', csv.status === 200 || typeof csvBody === 'object');
+
+const clientStats = await get('client', '/admin/analytics');
+check('Πελάτης δεν βλέπει τα συγκεντρωτικά', clientStats.status === 403, String(clientStats.status));
+const therapistStats = await get('therapist', '/admin/analytics');
+check('Θεραπευτής δεν βλέπει τα συγκεντρωτικά', therapistStats.status === 403, String(therapistStats.status));
+const anonStats = await get('anonY', '/admin/analytics');
+check('Ανώνυμος δεν βλέπει τα συγκεντρωτικά', anonStats.status === 401, String(anonStats.status));
+
 console.log(failures ? `\n${failures} έλεγχοι απέτυχαν` : '\nΌλοι οι έλεγχοι πέρασαν');
 process.exit(failures ? 1 : 0);

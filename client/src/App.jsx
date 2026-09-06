@@ -23,6 +23,7 @@ import Welcome from './pages/Welcome.jsx';
 import Join from './pages/Join.jsx';
 import ApplyTherapist from './pages/ApplyTherapist.jsx';
 import Admin from './pages/admin/Admin.jsx';
+import Analytics from './pages/admin/Analytics.jsx';
 
 import AppLayout from './pages/app/AppLayout.jsx';
 import Dashboard from './pages/app/Dashboard.jsx';
@@ -135,6 +136,7 @@ export default function App() {
         </Route>
 
         <Route path="/admin" element={<Protected role="admin"><Admin /></Protected>} />
+        <Route path="/admin/analytics" element={<Protected role="admin"><Analytics /></Protected>} />
 
         <Route path="*" element={<div className="container section center"><h1>404</h1><p>Η σελίδα δεν βρέθηκε.</p></div>} />
       </Routes>

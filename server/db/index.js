@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { createSqliteDriver } from './sqlite.js';
 import { createPostgresDriver } from './postgres.js';
 import { SQLITE_SCHEMA } from './schema.sqlite.js';
 
@@ -7,7 +6,19 @@ const connectionString = process.env.DATABASE_URL;
 
 // One handle for the whole server. Postgres (Supabase) when DATABASE_URL is
 // set, SQLite otherwise — the SQL in the routes is identical either way.
-export const sql = connectionString ? createPostgresDriver(connectionString) : createSqliteDriver();
+async function createSqlite() {
+  try {
+    const { createSqliteDriver } = await import('./sqlite.js');
+    return createSqliteDriver();
+  } catch (err) {
+    throw new Error(
+      'Δεν βρέθηκε τοπική βάση SQLite (better-sqlite3). Όρισε DATABASE_URL για Postgres ' +
+      `ή τρέξε npm install για την τοπική ανάπτυξη. Αιτία: ${err.message}`
+    );
+  }
+}
+
+export const sql = connectionString ? createPostgresDriver(connectionString) : await createSqlite();
 export const isPostgres = sql.kind === 'postgres';
 
 export async function initDb() {

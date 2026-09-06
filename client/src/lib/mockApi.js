@@ -5,7 +5,7 @@
 import '../demo.css';
 import { THERAPISTS, WORKSHEETS, REVIEW_BODIES, GROUPINARS } from '../../../shared/seed-data.js';
 import { questionnaireWithOptions, riskFromAnswers, SPECIALTIES, APPROACHES, PLANS, planPrice,
-  ASSESSMENT, FREQ_SCALE, scoreAssessment } from '../../../shared/catalog.js';
+  ASSESSMENT, FREQ_SCALE, scoreAssessment, QUESTIONNAIRE } from '../../../shared/catalog.js';
 import { scoreTherapists } from '../../../shared/matching-core.js';
 
 const now = () => new Date().toISOString();
@@ -355,6 +355,12 @@ function handle(method, path, body, query = {}) {
     });
   }
 
+  if (path === '/admin/analytics') {
+    return auth((m) => {
+      if (m.role !== 'admin') return fail(403, 'Δεν επιτρέπεται');
+      return ok(analytics());
+    });
+  }
   if (path === '/admin/applications') {
     return auth((m) => {
       if (m.role !== 'admin') return fail(403, 'Δεν επιτρέπεται');
@@ -747,6 +753,126 @@ function handle(method, path, body, query = {}) {
   }
 
   return fail(404, 'Not found');
+}
+
+/* ---------------- συγκεντρωτικά στοιχεία ---------------- */
+
+const LABELS = {
+  ...Object.fromEntries(SPECIALTIES.map((s) => [s.key, s.label])),
+  ...Object.fromEntries(APPROACHES.map((a) => [a.key, a.label])),
+  unsure: 'Δεν ξέρω / να προτείνετε εσείς',
+  el: 'Ελληνικά', en: 'Αγγλικά', de: 'Γερμανικά',
+  female: 'Γυναίκα', male: 'Άνδρας', nonbinary: 'Μη δυαδικό άτομο', other: 'Δεν απάντησε',
+  any: 'Χωρίς προτίμηση', individual: 'Ατομική', couples: 'Ζεύγους', teen: 'Εφήβων',
+  now: 'Άμεσα', week: 'Μέσα στην εβδομάδα', exploring: 'Απλώς εξερευνά',
+  good: 'Καλός', ok: 'Μέτριος', poor: 'Κακός', very_poor: 'Πολύ κακός',
+  never: 'Ποτέ', sometimes: 'Μερικές φορές', often: 'Συχνά', always: 'Σχεδόν πάντα',
+  yes: 'Ναι', no: 'Όχι', past: 'Στο παρελθόν',
+  messaging: 'Μηνύματα', live_chat: 'Live chat', phone: 'Τηλέφωνο', video: 'Βιντεοκλήση',
+};
+
+function tally(rows, id, multi) {
+  const counts = new Map();
+  let answered = 0;
+  for (const answers of rows) {
+    const value = answers[id];
+    if (value === undefined || value === null || value === '') continue;
+    answered++;
+    for (const v of (multi ? (Array.isArray(value) ? value : [value]) : [value])) {
+      counts.set(v, (counts.get(v) || 0) + 1);
+    }
+  }
+  return {
+    answered,
+    items: [...counts.entries()]
+      .map(([key, count]) => ({ key, label: LABELS[key] ?? key, count, pct: answered ? Math.round((count / answered) * 100) : 0 }))
+      .sort((a, b) => b.count - a.count),
+  };
+}
+
+const group = (rows, key) => {
+  const counts = new Map();
+  rows.forEach((r) => counts.set(r[key], (counts.get(r[key]) || 0) + 1));
+  return [...counts.entries()].map(([k, count]) => ({ key: k, count })).sort((a, b) => b.count - a.count);
+};
+
+function analytics() {
+  const intakeAnswers = db.intakes.map((i) => i.answers);
+  const answers = {};
+  for (const q of QUESTIONNAIRE) {
+    const dist = tally(intakeAnswers, q.id, q.type === 'multi');
+    if (dist.answered) answers[q.id] = { title: q.title, multi: q.type === 'multi', ...dist };
+  }
+
+  const clients = db.users.filter((u) => u.role === 'client');
+  const activeMatches = db.matches.filter((m) => m.status === 'active');
+  const approved = db.therapists.filter((t) => t.status === 'approved');
+  const pending = db.therapists.filter((t) => t.status === 'pending');
+  const avg = (pick) => {
+    const values = db.assessments.map(pick).filter((v) => Number.isFinite(v));
+    return values.length ? Math.round((values.reduce((a, v) => a + v, 0) / values.length) * 10) / 10 : null;
+  };
+  const bands = (pick) => {
+    const counts = new Map();
+    db.assessments.forEach((a) => { const b = pick(a); if (b) counts.set(b, (counts.get(b) || 0) + 1); });
+    return [...counts.entries()].map(([key, count]) => ({ key, label: key, count })).sort((a, b) => b.count - a.count);
+  };
+
+  return {
+    generated_at: now(),
+    totals: {
+      intakes: db.intakes.length, clients: clients.length,
+      therapists_approved: approved.length, therapists_pending: pending.length,
+      active_matches: activeMatches.length, messages: db.messages.length,
+      sessions: db.sessions.length, assessments: db.assessments.length,
+      journal_entries: db.journal.length, groupinar_registrations: db.registrations.length,
+    },
+    funnel: [
+      { key: 'intakes', label: 'Ολοκλήρωσαν ερωτηματολόγιο', count: db.intakes.length },
+      { key: 'accounts', label: 'Δημιούργησαν λογαριασμό', count: clients.length },
+      { key: 'matched', label: 'Έχουν ενεργό θεραπευτή', count: activeMatches.length },
+      { key: 'subscribed', label: 'Ενεργή συνδρομή', count: db.subscriptions.filter((s) => s.status === 'active').length },
+      { key: 'assessed', label: 'Συμπλήρωσαν αξιολόγηση γνωριμίας', count: new Set(db.assessments.map((a) => a.user_id)).size },
+    ],
+    answers,
+    risk: group(db.intakes, 'risk_level'),
+    assessment: {
+      count: db.assessments.length,
+      mood_avg: avg((a) => a.scores.mood?.total),
+      anxiety_avg: avg((a) => a.scores.anxiety?.total),
+      mood_bands: bands((a) => a.scores.mood?.label),
+      anxiety_bands: bands((a) => a.scores.anxiety?.label),
+    },
+    subscriptions: {
+      by_plan: group(db.subscriptions, 'plan'),
+      by_status: group(db.subscriptions, 'status'),
+      mrr_cents: db.subscriptions.filter((s) => s.status === 'active' && s.billing_period === 'monthly')
+        .reduce((a, s) => a + s.price_cents, 0),
+      on_financial_aid: new Set(db.aid.filter((a) => a.discount_pct > 0).map((a) => a.user_id)).size,
+    },
+    revenue: {
+      total_cents: db.payments.reduce((a, p) => a + p.amount_cents, 0),
+      last_30_cents: db.payments.reduce((a, p) => a + p.amount_cents, 0),
+      payments: db.payments.length,
+    },
+    sessions: {
+      by_status: group(db.sessions, 'status'),
+      by_modality: group(db.sessions, 'modality'),
+      upcoming: db.sessions.filter((s) => s.status === 'scheduled' && new Date(s.starts_at) > new Date()).length,
+    },
+    therapists: db.therapists.map((t) => ({
+      id: t.id, display_name: t.display_name, status: t.status, rating: t.rating,
+      reviews_count: t.reviews_count, avg_response_hours: t.avg_response_hours, max_clients: t.max_clients,
+      active_clients: db.matches.filter((m) => m.therapist_id === t.id && m.status === 'active').length,
+      sessions: db.sessions.filter((s) => db.matches.find((m) => m.id === s.match_id)?.therapist_id === t.id).length,
+    })).sort((a, b) => b.active_clients - a.active_clients),
+    signups: Object.entries(clients.reduce((acc, c) => {
+      const day = c.created_at.slice(0, 10);
+      acc[day] = (acc[day] || 0) + 1;
+      return acc;
+    }, {})).sort().map(([day, count]) => ({ day, count })),
+    question_order: QUESTIONNAIRE.map((q) => q.id),
+  };
 }
 
 /* ---------------- installation ---------------- */
