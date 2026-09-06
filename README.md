@@ -83,6 +83,22 @@ Landing page, «Πώς λειτουργεί», τιμοκατάλογος με �
   αλλιώς ενσωματωμένο bcrypt + JWT cookie για τοπική ανάπτυξη και tests.
 - **Frontend**: React 18, React Router 6, Vite — χωρίς UI framework, custom design system σε CSS.
 
+### Κινητό (iOS / Android)
+
+Η ίδια εφαρμογή συσκευάζεται ως native app με Capacitor — δες
+[`docs/mobile.md`](docs/mobile.md):
+
+```bash
+npm run mobile:sync       # build + συγχρονισμός με τα native projects
+npm run mobile:android    # Android Studio
+npm run mobile:ios        # Xcode (Mac)
+```
+
+Το build για κινητό χρειάζεται `VITE_API_URL` (απόλυτη διεύθυνση του API) και η
+ταυτοποίηση γίνεται με Bearer token αντί για cookie, αφού τα αρχεία σερβίρονται
+τοπικά από τη συσκευή. Οι άδειες κάμερας/μικροφώνου είναι ήδη δηλωμένες και οι
+κλήσεις WebRTC δουλεύουν αυτούσιες.
+
 ### Supabase & δημοσίευση
 
 Οδηγοί βήμα-βήμα: [`docs/supabase.md`](docs/supabase.md) για τη βάση και την

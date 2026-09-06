@@ -5,3 +5,14 @@ data/
 *.log
 .env
 .DS_Store
+
+# Capacitor: τα native projects είναι στο repo, τα build artifacts όχι
+client/android/build/
+client/android/app/build/
+client/android/.gradle/
+client/android/local.properties
+client/android/app/src/main/assets/public/
+client/ios/App/Pods/
+client/ios/App/build/
+client/ios/App/App/public/
+client/ios/DerivedData/

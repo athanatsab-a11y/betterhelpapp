@@ -23,7 +23,19 @@ import { supabaseAuthEnabled } from './auth.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+// Το native app τρέχει σε δικά του origins· σε production δηλώνεις τα δικά σου
+// domains στο ALLOWED_ORIGINS και τίποτα άλλο δεν περνά.
+const NATIVE_ORIGINS = ['capacitor://localhost', 'ionic://localhost', 'http://localhost', 'https://localhost'];
+const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean);
+app.use(cors({
+  credentials: true,
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);                    // ίδιο origin ή curl
+    if (NATIVE_ORIGINS.includes(origin)) return callback(null, true);
+    if (!allowed.length || allowed.includes(origin)) return callback(null, true);
+    callback(new Error('Origin δεν επιτρέπεται'));
+  },
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(attachUser);

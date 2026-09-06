@@ -1,0 +1,19 @@
+{
+  "appId": "gr.mindbridge.app",
+  "appName": "MindBridge",
+  "webDir": "dist",
+  "backgroundColor": "#fdf8f2",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "always"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "backgroundColor": "#125c5e",
+      "showSpinner": false
+    }
+  }
+}

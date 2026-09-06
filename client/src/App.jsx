@@ -4,6 +4,7 @@ import { useAuth } from './lib/auth.jsx';
 import { connectSocket } from './lib/socket.js';
 import { Header, Footer, Spinner, CrisisBanner } from './components/common.jsx';
 import DemoBar from './components/DemoBar.jsx';
+import { isNative } from './lib/api.js';
 import AppHeader from './components/AppHeader.jsx';
 import BottomTabs from './components/BottomTabs.jsx';
 
@@ -62,6 +63,26 @@ function Protected({ children, role }) {
   return children;
 }
 
+// Το native κέλυφος ξεκινά πάντα από το «/». Ένας χρήστης που άνοιξε την
+// εγκατεστημένη εφαρμογή θέλει την εφαρμογή, όχι τη σελίδα προώθησης — ο
+// έλεγχος πρόσβασης τον στέλνει στο καλωσόρισμα αν δεν είναι συνδεδεμένος.
+// Η σημαία ζει όσο ζει η φορτωμένη εφαρμογή: σε κάθε άνοιγμα (ή επανεκκίνηση)
+// μηδενίζεται και ο χρήστης μπαίνει στην εφαρμογή, ενώ μέσα στη συνεδρία
+// μπορεί να επισκεφθεί ελεύθερα το δημόσιο site από το μενού.
+let enteredApp = false;
+
+function NativeEntry() {
+  const nav = useNavigate();
+  const loc = useLocation();
+  useEffect(() => {
+    if (loc.pathname === '/' && !enteredApp) {
+      enteredApp = true;
+      nav('/app', { replace: true });
+    }
+  }, [loc.pathname, nav]);
+  return null;
+}
+
 // The demo is an app demo: opening it drops you inside the product, not on the
 // marketing site (which stays reachable from the account menu).
 function DemoEntry() {
@@ -70,8 +91,8 @@ function DemoEntry() {
   const { user, loading } = useAuth();
   useEffect(() => {
     if (!DEMO || loading || !user) return;
-    if (loc.pathname === '/' && !sessionStorage.getItem('mb_demo_entered')) {
-      sessionStorage.setItem('mb_demo_entered', '1');
+    if (loc.pathname === '/' && !enteredApp) {
+      enteredApp = true;
       nav(user.role === 'therapist' ? '/provider' : '/app', { replace: true });
     }
   }, [loading, user, loc.pathname, nav]);
@@ -91,6 +112,7 @@ export default function App() {
     <>
       <ScrollTop />
       {DEMO && <DemoEntry />}
+      {isNative && <NativeEntry />}
       {inApp ? <AppHeader variant={inAdmin ? 'admin' : inProvider ? 'provider' : 'client'} /> : inAuth ? null : <Header />}
       {DEMO && <DemoBar />}
       {!inApp && !inAuth && <CrisisBanner />}

@@ -1,4 +1,18 @@
-import { accessToken } from './supabase.js';
+import { accessToken, supabaseEnabled } from './supabase.js';
+
+// Μέσα στο native κέλυφος (Capacitor) η εφαρμογή σερβίρεται τοπικά, οπότε το
+// «/api» δεν οδηγεί πουθενά: χρειάζεται η πλήρης διεύθυνση του server. Στο web
+// μένει κενό και όλα δουλεύουν σχετικά, όπως πριν.
+export const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+export const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
+
+// Χωρίς Supabase, το native app δεν μπορεί να στηριχτεί σε cookie άλλου origin,
+// οπότε κρατά το δικό μας token και το στέλνει ως Bearer.
+const TOKEN_KEY = 'mb_token';
+export const storedToken = () => { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } };
+export const rememberToken = (token) => {
+  try { token ? localStorage.setItem(TOKEN_KEY, token) : localStorage.removeItem(TOKEN_KEY); } catch { /* ιδιωτική περιήγηση */ }
+};
 
 const json = async (res) => {
   const data = await res.json().catch(() => ({}));
@@ -8,12 +22,16 @@ const json = async (res) => {
 
 // Every call carries the Supabase access token when the project is configured;
 // otherwise the API falls back to its own httpOnly cookie.
+export async function authHeader() {
+  const supabaseToken = supabaseEnabled ? await accessToken() : null;
+  const token = supabaseToken || storedToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function request(method, path, body) {
-  const token = await accessToken();
-  const headers = {};
+  const headers = { ...(await authHeader()) };
   if (body) headers['Content-Type'] = 'application/json';
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(`/api${path}`, {
+  return fetch(`${API_BASE}/api${path}`, {
     method,
     credentials: 'include',
     headers,

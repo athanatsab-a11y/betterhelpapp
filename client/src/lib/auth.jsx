@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { api } from './api.js';
+import { api, rememberToken } from './api.js';
 import { supabase, supabaseEnabled } from './supabase.js';
 
 const AuthCtx = createContext(null);
@@ -66,7 +66,8 @@ export function AuthProvider({ children }) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw new Error(translate(error.message));
     } else {
-      await api.post('/auth/login', { email, password });
+      const { token } = await api.post('/auth/login', { email, password });
+      rememberToken(token);
     }
     return refresh();
   };
@@ -83,6 +84,7 @@ export function AuthProvider({ children }) {
       }
     }
     const result = await api.post(endpoint, payload);
+    if (result?.token) rememberToken(result.token);
     await refresh();
     return result;
   };
@@ -93,6 +95,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     if (supabaseEnabled) await supabase.auth.signOut();
     else await api.post('/auth/logout');
+    rememberToken(null);
     await refresh();
   };
 

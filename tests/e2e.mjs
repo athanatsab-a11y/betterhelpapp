@@ -312,5 +312,21 @@ check('Ξένος δεν μπορεί να στείλει σηματοδοσία
 
 [a, t, outsiderSocket].forEach((s) => s.ws.close());
 
+// 16. Native κέλυφος: ταυτοποίηση με token αντί για cookie
+const nativeLogin = await post('nativeUser', '/auth/login', { email: 'demo@mindbridge.gr', password: 'password123' });
+check('Η σύνδεση επιστρέφει token για το native app', typeof nativeLogin.data.token === 'string' && nativeLogin.data.token.length > 20);
+
+const bearerOnly = await fetch(`${BASE}/auth/me`, { headers: { Authorization: `Bearer ${nativeLogin.data.token}` } });
+const bearerBody = await bearerOnly.json();
+check('Το token δουλεύει χωρίς κανένα cookie', bearerBody.user?.email === 'demo@mindbridge.gr', JSON.stringify(bearerBody.user));
+
+const badBearer = await fetch(`${BASE}/auth/me`, { headers: { Authorization: 'Bearer forged.token.value' } });
+check('Πλαστό token απορρίπτεται', (await badBearer.json()).user === null);
+
+const nativeOrigin = await fetch(`${BASE}/health`, { headers: { Origin: 'capacitor://localhost' } });
+check('Το origin του native κελύφους επιτρέπεται', nativeOrigin.ok &&
+  nativeOrigin.headers.get('access-control-allow-origin') === 'capacitor://localhost',
+  String(nativeOrigin.headers.get('access-control-allow-origin')));
+
 console.log(failures ? `\n${failures} έλεγχοι απέτυχαν` : '\nΌλοι οι έλεγχοι πέρασαν');
 process.exit(failures ? 1 : 0);

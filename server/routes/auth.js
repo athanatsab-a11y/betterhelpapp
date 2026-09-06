@@ -54,8 +54,8 @@ router.post('/register', ah(async (req, res) => {
   const trialEnd = new Date(Date.now() + 7 * 86400000).toISOString();
   await sql.run("INSERT INTO subscriptions (user_id, plan, billing_period, price_cents, status, renews_at) VALUES (?,?,?,?,'trialing',?)", [user.id, plan, billing_period, planPrice(plan, billing_period), trialEnd]);
 
-  if (!supabaseAuthEnabled) issueToken(res, user);
-  res.status(201).json({ user: publicUser(user), matched });
+  const token = supabaseAuthEnabled ? null : issueToken(res, user);
+  res.status(201).json({ user: publicUser(user), matched, token });
 }));
 
 // Therapists sign up themselves; the profile stays unlisted until an admin
@@ -99,8 +99,8 @@ router.post('/apply-therapist', ah(async (req, res) => {
   }
 
   const user = await sql.get('SELECT * FROM users WHERE id = ?', [userId]);
-  if (!supabaseAuthEnabled) issueToken(res, user);
-  res.status(201).json({ user: publicUser(user), status: 'pending' });
+  const token = supabaseAuthEnabled ? null : issueToken(res, user);
+  res.status(201).json({ user: publicUser(user), status: 'pending', token });
 }));
 
 router.post('/login', ah(async (req, res) => {
@@ -112,8 +112,10 @@ router.post('/login', ah(async (req, res) => {
   if (!user || !checkPassword(String(password || ''), user.password_hash)) {
     return res.status(401).json({ error: 'Λάθος email ή κωδικός' });
   }
-  issueToken(res, user);
-  res.json({ user: publicUser(user) });
+  // Το token επιστρέφεται και στο σώμα: το native κέλυφος δεν μπορεί να
+  // στηριχτεί σε cookie από άλλο origin.
+  const token = issueToken(res, user);
+  res.json({ user: publicUser(user), token });
 }));
 
 router.post('/logout', ah(async (req, res) => { clearToken(res); res.json({ ok: true }); }));
