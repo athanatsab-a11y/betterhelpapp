@@ -43,6 +43,12 @@
       </array>
     </dict>
 	</dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Επιτρέπει HTTP μόνο προς τοπικές διευθύνσεις, για ανάπτυξη. -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Η κάμερα χρησιμοποιείται μόνο κατά τη διάρκεια βιντεοσυνεδρίας με τον θεραπευτή σου.</string>
 	<key>NSMicrophoneUsageDescription</key>

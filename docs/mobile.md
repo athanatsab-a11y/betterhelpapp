@@ -33,6 +33,20 @@ VITE_SUPABASE_ANON_KEY=<anon key>
 ALLOWED_ORIGINS=https://todomain.sou
 ```
 
+## Δοκιμή πριν από τη δημοσίευση του server
+
+Αν ο server τρέχει ακόμη τοπικά, το κινητό πρέπει να τον βρει στο δίκτυο:
+
+| Πού δοκιμάζεις | `VITE_API_URL` |
+|---|---|
+| Android emulator | `http://10.0.2.2:3000` (έτσι βλέπει τον υπολογιστή σου) |
+| iOS simulator | `http://localhost:3000` |
+| Πραγματική συσκευή στο ίδιο Wi-Fi | `http://192.168.x.x:3000` (η IP του υπολογιστή σου) |
+
+Το HTTP προς αυτές τις τοπικές διευθύνσεις είναι ήδη επιτρεπτό: στο Android με
+`network_security_config.xml` και στο iOS με `NSAllowsLocalNetworking`. Προς τα
+έξω, και στις δύο πλατφόρμες, επιτρέπεται μόνο HTTPS.
+
 ## Χτίσιμο και άνοιγμα
 
 ```bash

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Σε production η εφαρμογή μιλά μόνο με HTTPS. Οι εξαιρέσεις παρακάτω αφορούν
+  αποκλειστικά τοπικές διευθύνσεις ανάπτυξης, ώστε να δοκιμάζεις σε emulator ή
+  σε συσκευή στο ίδιο Wi-Fi χωρίς πιστοποιητικό.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>       <!-- emulator -> ο υπολογιστής σου -->
+        <domain includeSubdomains="false">10.0.3.2</domain>       <!-- Genymotion -->
+        <domain includeSubdomains="true">192.168.0.0</domain>
+        <domain includeSubdomains="true">192.168.1.0</domain>
+    </domain-config>
+</network-security-config>
