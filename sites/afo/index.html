@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Μπάλα πυρόσβεσης AFO: ενεργοποιείται μόνη της σε 3-5 δευτερόλεπτα. Αντικαταβολή, αποστολή σε 1-3 ημέρες, 14 ημέρες επιστροφή.">
+<meta name="description" content="Μπάλα πυρόσβεσης AFO: ενεργοποιείται μόνη της σε 3-5 δευτερόλεπτα. Ασφαλής πληρωμή με κάρτα, αποστολή σε 1-3 ημέρες, 14 ημέρες επιστροφή.">
 <meta property="og:title" content="Μπάλα Πυρόσβεσης AFO — σβήνει τη φωτιά χωρίς να είστε εκεί">
-<meta property="og:description" content="Κρεμιέται πάνω από τον ηλεκτρικό πίνακα ή την κουζίνα και ενεργοποιείται μόνη της. Αντικαταβολή σε όλη την Ελλάδα.">
+<meta property="og:description" content="Κρεμιέται πάνω από τον ηλεκτρικό πίνακα ή την κουζίνα και ενεργοποιείται μόνη της. Αποστολή σε όλη την Ελλάδα.">
 <meta property="og:type" content="product">
 <title>Μπάλα Πυρόσβεσης AFO</title>
 <style>
@@ -88,11 +88,14 @@ section{padding-block:clamp(48px,6.5vw,88px)}
 .nav{display:flex;gap:20px;margin-inline-start:auto;font-size:.95rem}
 .nav a{text-decoration:none;color:var(--ink-2)}
 .nav a:hover{color:var(--ink)}
-.head-phone{display:flex;flex-direction:column;text-decoration:none;font-family:var(--display);font-weight:800;font-size:1.06rem;line-height:1.1}
-.head-phone small{font-family:var(--body);font-weight:400;font-size:.72rem;color:var(--ink-2)}
+.paycard{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--line);border-radius:9px;background:var(--ground);margin-bottom:16px}
+.paycard svg{flex:none;color:var(--green);margin-top:3px}
+.paycard b{display:block;font-weight:700}
+.paycard small{display:block;color:var(--ink-2);font-size:.85rem;margin-top:3px}
+.schemes{display:flex;gap:6px;margin-top:8px;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--ink-2)}
+.schemes span{border:1px solid var(--line);border-radius:5px;padding:2px 7px;background:var(--surface)}
 .head-actions{display:flex;align-items:center;gap:14px;margin-inline-start:auto}
 @media (max-width:940px){.nav{display:none}}
-@media (max-width:560px){.head-phone{display:none}}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:var(--display);font-weight:800;font-size:1.06rem;padding:14px 26px;border-radius:10px;border:1px solid transparent;cursor:pointer;text-decoration:none;transition:transform .12s ease,background .15s ease,box-shadow .15s ease}
@@ -292,7 +295,7 @@ body.sticky-on{padding-bottom:74px}
 </style>
 </head>
 <body>
-<div class="annbar">Πληρωμή με <b>αντικαταβολή</b><span class="ann-more"> σε όλη την Ελλάδα</span> · Δωρεάν αποστολή άνω των <b>60 €</b><span class="ann-more"> · Παράδοση σε 1–3 εργάσιμες</span></div>
+<div class="annbar">Ασφαλής <b>πληρωμή με κάρτα</b><span class="ann-more"> μέσω τράπεζας</span> · Δωρεάν αποστολή άνω των <b>60 €</b><span class="ann-more"> · Παράδοση σε 1–3 εργάσιμες</span></div>
 <header class="site-head">
   <div class="wrap head-row">
     <a class="brand" href="#top">
@@ -306,7 +309,6 @@ body.sticky-on{padding-bottom:74px}
       <a href="#erotiseis">Ερωτήσεις</a>
     </nav>
     <div class="head-actions">
-      <a class="head-phone" href="tel:+302100000000" data-track="call_header">210 000 0000<small>Δευ–Παρ 09:00–17:00</small></a>
       <a class="btn btn-primary" href="#paraggelia" data-track="cta_header">Παραγγελία</a>
     </div>
   </div>
@@ -332,9 +334,9 @@ body.sticky-on{padding-bottom:74px}
       <div class="hero-cta">
         <a class="btn btn-primary" href="#paraggelia" data-track="cta_hero">Παράγγειλε τώρα <span aria-hidden="true">→</span></a>
       </div>
-      <p class="cutoff"><span class="dot" aria-hidden="true"></span><span id="cutoffText">Παραγγελίες μέχρι τις 14:00 φεύγουν αυθημερόν.</span></p>
+      <p class="cutoff"><span class="dot" aria-hidden="true"></span><span id="cutoffText">Αποστολή με courier σε 1–3 εργάσιμες, σε όλη την Ελλάδα.</span></p>
       <div class="hero-badges">
-        <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Πληρωμή στον διανομέα</span>
+        <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Ασφαλής πληρωμή με κάρτα</span>
         <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> 14 ημέρες επιστροφή</span>
         <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Εγγύηση 5 ετών</span>
         <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Ελληνική εξυπηρέτηση</span>
@@ -376,7 +378,7 @@ body.sticky-on{padding-bottom:74px}
 <div class="proofbar">
   <div class="wrap">
     <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Αποστολή με courier σε 1–3 εργάσιμες</span>
-    <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Πληρώνετε όταν παραλάβετε</span>
+    <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Πληρωμή με κάρτα, 3-D Secure</span>
     <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Τιμολόγιο για επιχειρήσεις</span>
     <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Οδηγίες &amp; υποστήριξη στα ελληνικά</span>
   </div>
@@ -517,7 +519,7 @@ body.sticky-on{padding-bottom:74px}
   <div class="wrap">
     <p class="eyebrow" style="color:var(--amber)">Παραγγελία σε ένα βήμα</p>
     <h2>Πέντε πεδία και τελειώσατε</h2>
-    <p class="lede">Δεν ζητάμε στοιχεία κάρτας και δεν χρειάζεται λογαριασμός. Θα σας καλέσουμε για επιβεβαίωση πριν φύγει το δέμα.</p>
+    <p class="lede">Δεν χρειάζεται λογαριασμός. Συμπληρώνετε τη διεύθυνση παράδοσης και ολοκληρώνετε την πληρωμή με κάρτα στο ασφαλές περιβάλλον της τράπεζας.</p>
     <div class="order-grid">
       <div class="card">
         <h3>Στοιχεία παράδοσης</h3>
@@ -525,24 +527,26 @@ body.sticky-on{padding-bottom:74px}
         <form id="orderForm" novalidate>
           <div class="field"><label for="fname">Ονοματεπώνυμο</label><input id="fname" name="fname" autocomplete="name" required><span class="err" data-err="fname"></span></div>
           <div class="field"><label for="phone">Κινητό τηλέφωνο</label><input id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="69ΧΧΧΧΧΧΧΧ" required><span class="err" data-err="phone"></span></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required><span class="err" data-err="email"></span></div>
           <div class="field"><label for="address">Διεύθυνση &amp; αριθμός</label><input id="address" name="address" autocomplete="street-address" required><span class="err" data-err="address"></span></div>
           <div class="row2">
             <div class="field"><label for="zip">Τ.Κ.</label><input id="zip" name="zip" inputmode="numeric" maxlength="5" autocomplete="postal-code" required><span class="err" data-err="zip"></span></div>
             <div class="field"><label for="city">Πόλη</label><input id="city" name="city" autocomplete="address-level2" required><span class="err" data-err="city"></span></div>
           </div>
           <div class="toggles">
-            <button type="button" data-toggle="emailField">+ Email για ενημέρωση αποστολής</button>
             <button type="button" data-toggle="vatField">+ Θέλω τιμολόγιο</button>
             <button type="button" data-toggle="notesField">+ Σημείωση για τον διανομέα</button>
           </div>
-          <div class="field" id="emailField" hidden><label for="email">Email <span style="font-weight:400">(προαιρετικό)</span></label><input id="email" name="email" type="email" autocomplete="email"><span class="err" data-err="email"></span></div>
           <div class="field" id="vatField" hidden><label for="vat">ΑΦΜ <span style="font-weight:400">(για τιμολόγιο)</span></label><input id="vat" name="vat" inputmode="numeric" maxlength="9"><span class="err" data-err="vat"></span></div>
           <div class="field" id="notesField" hidden><label for="notes">Σημείωση παράδοσης</label><textarea id="notes" name="notes" placeholder="π.χ. όροφος, κουδούνι, ώρες που είστε σπίτι"></textarea></div>
 
-          <label style="margin-bottom:8px;display:block">Τρόπος πληρωμής</label>
-          <div class="pay" role="radiogroup" aria-label="Τρόπος πληρωμής">
-            <label for="pay-cod"><input type="radio" id="pay-cod" name="pay" value="cod" checked><span>Αντικαταβολή — πληρώνετε στον διανομέα<small>Επιβάρυνση 2,50 €. Βλέπετε πρώτα το δέμα, πληρώνετε μετά.</small></span></label>
-            <label for="pay-bank"><input type="radio" id="pay-bank" name="pay" value="bank"><span>Κατάθεση σε τραπεζικό λογαριασμό<small>Χωρίς επιβάρυνση. Στέλνουμε τα στοιχεία με SMS ή email.</small></span></label>
+          <div class="paycard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+            <div>
+              <b>Πληρωμή με κάρτα</b>
+              <small>Μόλις καταχωρήσετε τη διεύθυνση, μεταφέρεστε στη σελίδα πληρωμής της τράπεζας με 3-D Secure. Τα στοιχεία της κάρτας δεν περνούν ούτε αποθηκεύονται από εμάς.</small>
+              <div class="schemes" aria-label="Δεκτές κάρτες"><span>VISA</span><span>MASTERCARD</span><span>MAESTRO</span></div>
+            </div>
           </div>
 
           <div class="row2">
@@ -559,19 +563,18 @@ body.sticky-on{padding-bottom:74px}
           <div class="totals">
             <div class="sum-line"><span id="sumItems">2 τεμάχια</span><span id="sumSub">64,90 €</span></div>
             <div class="sum-line"><span>Μεταφορικά</span><span id="sumShip" class="free">Δωρεάν</span></div>
-            <div class="sum-line" id="sumCodRow"><span>Αντικαταβολή</span><span id="sumCod">2,50 €</span></div>
             <div class="sum-total"><span>Πληρωτέο</span><span id="sumTotal">67,40 €</span></div>
           </div>
 
-          <button class="btn btn-primary btn-lg" type="submit" id="submitBtn" style="margin-top:16px">Ολοκλήρωση παραγγελίας</button>
-          <p class="undersubmit"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg> Χωρίς στοιχεία κάρτας. Δικαίωμα επιστροφής 14 ημερών.</p>
+          <button class="btn btn-primary btn-lg" type="submit" id="submitBtn" style="margin-top:16px">Συνέχεια στην πληρωμή</button>
+          <p class="undersubmit"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg> Κρυπτογραφημένη πληρωμή μέσω τράπεζας. Δικαίωμα επιστροφής 14 ημερών.</p>
         </form>
       </div>
 
       <div class="guarantee">
         <div class="gitem">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V7l-8-4Z"/><path d="M9 12.5 11 15l4-4.5"/></svg>
-          <div><h4>Πληρώνετε αφού το δείτε</h4><p>Με αντικαταβολή δίνετε τα χρήματα στον διανομέα, στην πόρτα σας. Καμία προκαταβολή.</p></div>
+          <div><h4>Ασφαλής πληρωμή</h4><p>Η συναλλαγή γίνεται στο περιβάλλον της τράπεζας με 3-D Secure. Δεν αποθηκεύουμε στοιχεία κάρτας.</p></div>
         </div>
         <div class="gitem">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
@@ -583,7 +586,7 @@ body.sticky-on{padding-bottom:74px}
         </div>
         <div class="gitem">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h4l2 5-2.5 1.5a12 12 0 0 0 5 5L14 14l5 2v4a1 1 0 0 1-1.1 1C9.6 20.3 3.7 14.4 3 5.1A1 1 0 0 1 4 5Z"/></svg>
-          <div><h4>Μιλάτε με άνθρωπο</h4><p>Τηλεφωνική υποστήριξη στα ελληνικά πριν και μετά την αγορά, χωρίς chatbot.</p></div>
+          <div><h4>Υποστήριξη στα ελληνικά</h4><p>Απαντάμε με email σε κάθε ερώτηση, πριν και μετά την αγορά.</p></div>
         </div>
       </div>
     </div>
@@ -593,15 +596,15 @@ body.sticky-on{padding-bottom:74px}
 <section id="erotiseis">
   <div class="wrap" style="max-width:860px">
     <p class="eyebrow">Πριν αγοράσετε</p>
-    <h2>Οι ερωτήσεις που μας κάνουν στο τηλέφωνο</h2>
+    <h2>Οι ερωτήσεις που μας κάνουν οι πελάτες</h2>
     <div style="margin-top:24px">
       <details open><summary>Μπορεί να σκάσει μόνη της μέσα στο σπίτι;</summary><p>Όχι. Δεν έχει πίεση ούτε μηχανισμό και δεν αντιδρά σε πτώση, χτύπημα ή ζέστη δωματίου. Ενεργοποιείται μόνο όταν γυμνή φλόγα κάψει το φιτίλι της. Γι' αυτό δεν τοποθετείται ποτέ πάνω από τζάκι, σόμπα ή αναμμένη εστία.</p></details>
       <details><summary>Αντικαθιστά τον πυροσβεστήρα του σπιτιού ή του μαγαζιού;</summary><p>Όχι. Είναι μέσο πρώτης προσβολής για τα πρώτα δευτερόλεπτα. Δεν φέρει πιστοποίηση ΕΝ 3 και δεν καλύπτει τα μέσα πυροπροστασίας που ζητά η άδεια λειτουργίας ή η μελέτη πυρασφάλειας. Πολλοί πελάτες τη βάζουν δίπλα στον πυροσβεστήρα, όχι αντί γι' αυτόν.</p></details>
       <details><summary>Πόσο κρατάει και τι συντήρηση θέλει;</summary><p>Πέντε χρόνια από την ημερομηνία παραγωγής, χωρίς αναγόμωση και χωρίς ετήσιο έλεγχο. Η ημερομηνία λήξης είναι τυπωμένη στη συσκευασία.</p></details>
       <details><summary>Τι αφήνει πίσω της όταν ενεργοποιηθεί;</summary><p>Λεπτή κίτρινη σκόνη φωσφορικών αλάτων: δεν είναι τοξική, είναι όμως ερεθιστική για μάτια και αναπνευστικό. Αερίζετε τον χώρο, μαζεύετε τη σκόνη με ηλεκτρική σκούπα και σκουπίζετε με νωπό πανί.</p></details>
       <details><summary>Πώς την τοποθετώ;</summary><p>Με τη βάση που περιλαμβάνεται, σε τοίχο ή οροφή, 1–2 μέτρα πάνω από το σημείο κινδύνου ώστε η φλόγα να την αγγίξει. Εναλλακτικά τη ρίχνετε από απόσταση μέσα στην εστία.</p></details>
-      <details><summary>Πόσο κοστίζει η αποστολή και πότε θα το παραλάβω;</summary><p>3,50 € τα μεταφορικά, δωρεάν άνω των 60 €. Παράδοση με courier σε 1–3 εργάσιμες στην ηπειρωτική Ελλάδα, 2–4 σε νησιά και δυσπρόσιτες περιοχές. Η αντικαταβολή επιβαρύνει με 2,50 €.</p></details>
-      <details><summary>Εκδίδετε τιμολόγιο;</summary><p>Ναι. Πατήστε «Θέλω τιμολόγιο» στη φόρμα και συμπληρώστε ΑΦΜ· θα σας ζητήσουμε τηλεφωνικά επωνυμία, δραστηριότητα και ΔΟΥ.</p></details>
+      <details><summary>Πόσο κοστίζει η αποστολή και πότε θα το παραλάβω;</summary><p>3,50 € τα μεταφορικά, δωρεάν άνω των 60 €. Παράδοση με courier σε 1–3 εργάσιμες στην ηπειρωτική Ελλάδα, 2–4 σε νησιά και δυσπρόσιτες περιοχές.</p></details>
+      <details><summary>Εκδίδετε τιμολόγιο;</summary><p>Ναι. Πατήστε «Θέλω τιμολόγιο» στη φόρμα και συμπληρώστε ΑΦΜ· θα σας ζητήσουμε με email επωνυμία, δραστηριότητα και ΔΟΥ.</p></details>
       <details><summary>Αν αλλάξω γνώμη μετά την παραλαβή;</summary><p>Έχετε 14 ημερολογιακές ημέρες για υπαναχώρηση χωρίς αιτιολογία, με το προϊόν αχρησιμοποίητο και στη συσκευασία του. Επιστρέφουμε το τίμημα εντός 14 ημερών από την παραλαβή της επιστροφής.</p></details>
       <details><summary>Τεχνικά χαρακτηριστικά</summary>
         <dl class="specs">
@@ -643,7 +646,7 @@ body.sticky-on{padding-bottom:74px}
     <div style="margin-top:20px">
       <details><summary>Όροι πώλησης</summary><ul>
         <li>Οι τιμές είναι σε ευρώ και περιλαμβάνουν ΦΠΑ 24%. Ισχύουν όσο εμφανίζονται στη σελίδα και μέχρι εξαντλήσεως των αποθεμάτων.</li>
-        <li>Η παραγγελία οριστικοποιείται μετά την τηλεφωνική ή γραπτή επιβεβαίωση από το κατάστημα.</li>
+        <li>Η παραγγελία οριστικοποιείται με την επιτυχή χρέωση της κάρτας και το email επιβεβαίωσης που ακολουθεί.</li>
         <li>Το προϊόν παραδίδεται με τα έντυπα του κατασκευαστή και οδηγίες χρήσης στα ελληνικά.</li>
         <li>Ο πωλητής δεν ευθύνεται για ζημιές από χρήση αντίθετη προς τις οδηγίες, από τοποθέτηση σε ακατάλληλο σημείο ή από χρήση σε κατηγορίες φωτιάς που εξαιρούνται (D και F).</li>
         <li>Εναλλακτική επίλυση διαφορών: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.</li>
@@ -656,6 +659,7 @@ body.sticky-on{padding-bottom:74px}
       <details><summary>Προστασία προσωπικών δεδομένων</summary><ul>
         <li>Τα στοιχεία της φόρμας χρησιμοποιούνται αποκλειστικά για την εκτέλεση και την τιμολόγηση της παραγγελίας.</li>
         <li>Κοινοποιούνται μόνο στην εταιρεία ταχυμεταφορών, στον βαθμό που απαιτείται για την παράδοση.</li>
+        <li>Τα στοιχεία της κάρτας εισάγονται αποκλειστικά στο περιβάλλον του παρόχου πληρωμών· το κατάστημα δεν τα λαμβάνει ούτε τα αποθηκεύει.</li>
         <li>Διατηρούνται όσο επιβάλλει η φορολογική νομοθεσία και μετά διαγράφονται.</li>
         <li>Δικαιώματα πρόσβασης, διόρθωσης, διαγραφής και φορητότητας κατά τον Κανονισμό (ΕΕ) 2016/679. Καταγγελίες: <a href="https://www.dpa.gr" target="_blank" rel="noopener">dpa.gr</a>.</li>
         <li>Τα στοιχεία που πληκτρολογείτε στη φόρμα αποθηκεύονται προσωρινά στον browser σας, ώστε να μη χαθούν αν φύγετε από τη σελίδα. Διαγράφονται με την υποβολή.</li>
@@ -675,9 +679,7 @@ body.sticky-on{padding-bottom:74px}
       <div>
         <h4>Επικοινωνία</h4>
         <ul>
-          <li><a href="tel:+302100000000">210 000 0000</a></li>
           <li><a href="mailto:paraggelies@example.gr">paraggelies@example.gr</a></li>
-          <li>Δευτέρα–Παρασκευή, 09:00–17:00</li>
         </ul>
       </div>
       <div>
@@ -691,12 +693,12 @@ body.sticky-on{padding-bottom:74px}
       </div>
     </div>
     <p class="emergency">Σε περίπτωση πυρκαγιάς καλέστε αμέσως την Πυροσβεστική Υπηρεσία στο <b>199</b> ή το <b>112</b>. Η μπάλα πυρόσβεσης είναι συμπληρωματικό μέσο και δεν υποκαθιστά τον πιστοποιημένο πυροσβεστήρα.</p>
-    <p class="seller-note"><b>Σημείωση για τον πωλητή — σβήστε το πριν τη δημοσίευση.</b> Συμπληρώστε επωνυμία, έδρα, ΑΦΜ, ΔΟΥ, ΓΕΜΗ, τηλέφωνο και email εδώ και στο <code>SHOP</code> μέσα στο script (ΠΔ 131/2003). Ελέγξτε τιμές, μεταφορικά και την ώρα cutoff αποστολής.</p>
+    <p class="seller-note"><b>Σημείωση για τον πωλητή — σβήστε το πριν τη δημοσίευση.</b> Συμπληρώστε επωνυμία, έδρα, ΑΦΜ, ΔΟΥ, ΓΕΜΗ και email εδώ και στο <code>SHOP</code> μέσα στο script (ΠΔ 131/2003). Ορίστε το <code>PAYMENT.checkoutUrl</code> του παρόχου πληρωμών και ελέγξτε τιμές και μεταφορικά.</p>
   </div>
 </footer>
 
 <div class="stickybar" id="stickybar">
-  <span class="info"><b id="stickyTotal">67,40 €</b><small id="stickyItems">2 μπάλες · αντικαταβολή</small></span>
+  <span class="info"><b id="stickyTotal">67,40 €</b><small id="stickyItems">2 μπάλες</small></span>
   <a class="btn btn-primary" href="#paraggelia" data-track="cta_sticky">Παραγγελία</a>
 </div>
 
@@ -707,13 +709,15 @@ body.sticky-on{padding-bottom:74px}
 const SHOP = {
   name: "AFO Ελλάδα",
   email: "paraggelies@example.gr",
-  phone: "+302100000000",
-  phoneLabel: "210 000 0000",
   shipping: 3.50,
-  freeShippingOver: 60,
-  codFee: 2.50,
-  dispatchCutoffHour: 14,        // ώρα που κλείνει η αποστολή της ημέρας (null = απενεργοποίηση)
-  dispatchDays: [1, 2, 3, 4, 5]  // Δευτέρα=1 ... Παρασκευή=5
+  freeShippingOver: 60
+};
+
+/* Πληρωμή με κάρτα. Βάλτε τον σύνδεσμο πληρωμής του παρόχου σας
+   (Stripe Payment Link, Viva Smart Checkout, Everypay, Alpha/Πειραιώς e-Commerce κ.λπ.).
+   Ο πελάτης μεταφέρεται εκεί μόλις καταχωρήσει τη διεύθυνση παράδοσης. */
+const PAYMENT = {
+  checkoutUrl: null
 };
 
 /* Τιμές πακέτων. Το compareAt μπαίνει ΜΟΝΟ αν η τιμή ίσχυε πραγματικά τις
@@ -774,29 +778,6 @@ $$("[data-track]").forEach((el) => el.addEventListener("click", () => track(el.d
     </div>`).join("");
 })();
 
-/* ---------- ώρα αποστολής ---------- */
-(function cutoff() {
-  const el = $("#cutoffText");
-  if (SHOP.dispatchCutoffHour === null) { el.parentElement.hidden = true; return; }
-  const days = ["Κυριακή", "Δευτέρα", "Τρίτη", "Τετάρτη", "Πέμπτη", "Παρασκευή", "Σάββατο"];
-  function update() {
-    const now = new Date();
-    const open = SHOP.dispatchDays.includes(now.getDay());
-    const cut = new Date(now); cut.setHours(SHOP.dispatchCutoffHour, 0, 0, 0);
-    if (open && now < cut) {
-      const mins = Math.round((cut - now) / 60000);
-      const h = Math.floor(mins / 60), m = mins % 60;
-      const left = h ? `${h} ώρες ${m} λεπτά` : `${m} λεπτά`;
-      el.innerHTML = `Παραγγελία μέσα στις επόμενες <b>${left}</b> και φεύγει σήμερα.`;
-    } else {
-      let d = new Date(now); do { d.setDate(d.getDate() + 1); } while (!SHOP.dispatchDays.includes(d.getDay()));
-      el.innerHTML = `Η σημερινή αποστολή έκλεισε — η παραγγελία σας φεύγει <b>${days[d.getDay()]}</b>.`;
-    }
-  }
-  update();
-  setInterval(update, 60000);
-})();
-
 /* ---------- τιμές & σύνολα ---------- */
 const form = $("#orderForm");
 const packSelect = $("#pack");
@@ -822,11 +803,9 @@ const qtyInput = $("#qty");
 function state() {
   const pack = PACKS[packSelect.value] || PACKS["2"];
   const bundles = Math.min(20, Math.max(1, parseInt(qtyInput.value, 10) || 1));
-  const pay = form.querySelector('input[name="pay"]:checked').value;
   const subtotal = pack.price * bundles;
   const shipping = subtotal >= SHOP.freeShippingOver ? 0 : SHOP.shipping;
-  const cod = pay === "cod" ? SHOP.codFee : 0;
-  return { pack, bundles, pay, subtotal, shipping, cod, total: subtotal + shipping + cod, units: pack.units * bundles };
+  return { pack, bundles, subtotal, shipping, total: subtotal + shipping, units: pack.units * bundles };
 }
 
 function render() {
@@ -836,11 +815,9 @@ function render() {
   const ship = $("#sumShip");
   ship.textContent = s.shipping === 0 ? "Δωρεάν" : eur.format(s.shipping);
   ship.classList.toggle("free", s.shipping === 0);
-  $("#sumCodRow").hidden = s.cod === 0;
-  $("#sumCod").textContent = eur.format(s.cod);
   $("#sumTotal").textContent = eur.format(s.total);
   $("#stickyTotal").textContent = eur.format(s.total);
-  $("#stickyItems").textContent = `${s.units === 1 ? "1 μπάλα" : s.units + " μπάλες"} · ${s.pay === "cod" ? "αντικαταβολή" : "κατάθεση"}`;
+  $("#stickyItems").textContent = s.units === 1 ? "1 μπάλα" : s.units + " μπάλες";
   $$(".tier").forEach((t) => t.setAttribute("aria-pressed", String(t.dataset.pack === packSelect.value)));
 }
 
@@ -873,7 +850,7 @@ const RULES = {
   address: (v) => v.trim().length >= 5 || "Γράψτε οδό και αριθμό.",
   zip: (v) => /^\d{5}$/.test(v.trim()) || "Ο Τ.Κ. έχει 5 ψηφία.",
   city: (v) => v.trim().length >= 2 || "Γράψτε πόλη ή χωριό.",
-  email: (v) => v.trim() === "" || /^[^\s@]+@[^\s@]+\.[a-zA-Zα-ωΑ-Ω]{2,}$/.test(v.trim()) || "Ελέγξτε το email ή αφήστε το κενό.",
+  email: (v) => /^[^\s@]+@[^\s@]+\.[a-zA-Zα-ωΑ-Ω]{2,}$/.test(v.trim()) || "Χρειαζόμαστε email για την επιβεβαίωση της παραγγελίας.",
   vat: (v) => v.trim() === "" || /^\d{9}$/.test(v.trim()) || "Το ΑΦΜ έχει 9 ψηφία."
 };
 
@@ -964,13 +941,13 @@ function orderText(data, s) {
     `Πακέτο: ${s.pack.label} × ${s.bundles} (σύνολο ${s.units} μπάλες)`,
     `Αξία προϊόντων: ${eur.format(s.subtotal)}`,
     `Μεταφορικά: ${s.shipping === 0 ? "Δωρεάν" : eur.format(s.shipping)}`,
-    s.cod ? `Αντικαταβολή: ${eur.format(s.cod)}` : "Πληρωμή: κατάθεση σε τραπεζικό λογαριασμό",
+    "Πληρωμή: κάρτα (online)",
     `ΠΛΗΡΩΤΕΟ: ${eur.format(s.total)}`,
     "",
     `Ονοματεπώνυμο: ${data.fname}`,
     `Τηλέφωνο: ${data.phone}`,
     `Διεύθυνση: ${data.address}, ${data.zip} ${data.city}`,
-    data.email ? `Email: ${data.email}` : "",
+    `Email: ${data.email}`,
     data.vat ? `ΑΦΜ για τιμολόγιο: ${data.vat}` : "Απόδειξη λιανικής",
     data.notes ? `Σημείωση: ${data.notes}` : ""
   ].filter(Boolean).join("\n");
@@ -990,7 +967,7 @@ form.addEventListener("submit", async (e) => {
   const data = Object.fromEntries(new FormData(form).entries());
   const s = state();
   const text = orderText(data, s);
-  track("purchase_intent", { value: s.total, currency: "EUR", items: s.units, payment: s.pay });
+  track("purchase_intent", { value: s.total, currency: "EUR", items: s.units, payment: "card" });
 
   if (ORDER_ENDPOINT) {
     const btn = $("#submitBtn");
@@ -1008,8 +985,8 @@ form.addEventListener("submit", async (e) => {
     } catch (err) {
       btn.disabled = false;
       btn.textContent = "Ολοκλήρωση παραγγελίας";
-      form.querySelector('[data-err="phone"]').textContent =
-        "Η αποστολή δεν πέρασε. Δοκιμάστε ξανά ή καλέστε μας στο " + SHOP.phoneLabel + ".";
+      form.querySelector('[data-err="email"]').textContent =
+        "Η καταχώρηση δεν πέρασε. Δοκιμάστε ξανά ή στείλτε μας email στο " + SHOP.email + ".";
       return;
     }
   }
@@ -1018,23 +995,27 @@ form.addEventListener("submit", async (e) => {
 
 function finish(data, text, sent) {
   try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+  const s2 = state();
   const mail = `mailto:${SHOP.email}?subject=${encodeURIComponent("Παραγγελία AFO — " + data.fname)}&body=${encodeURIComponent(text)}`;
+  const payBtn = PAYMENT.checkoutUrl
+    ? `<a class="btn btn-primary btn-lg" href="${PAYMENT.checkoutUrl}" data-track="go_payment">Πληρωμή ${eur.format(s2.total)} με κάρτα</a>`
+    : `<p class="editor-note"><b>Σημείωση για τον πωλητή:</b> δεν έχει οριστεί <code>PAYMENT.checkoutUrl</code>. Βάλτε τον σύνδεσμο πληρωμής του παρόχου σας στο μπλοκ ρυθμίσεων και ο πελάτης θα μεταφέρεται εδώ στη σελίδα της τράπεζας.</p>`;
   const panel = document.createElement("div");
   panel.className = "done";
   panel.tabIndex = -1;
-  panel.innerHTML = sent
-    ? `<h3>Η παραγγελία καταχωρήθηκε</h3>
-       <p>Ευχαριστούμε, ${esc(data.fname.split(" ")[0])}. Θα σας καλέσουμε στο ${esc(data.phone)} για επιβεβαίωση πριν φύγει το δέμα.</p>
-       <pre>${esc(text)}</pre>`
-    : `<h3>Ένα βήμα ακόμη</h3>
-       <p>Η παραγγελία σας είναι έτοιμη. Στείλτε την με ένα κλικ και θα σας καλέσουμε για επιβεβαίωση.</p>
-       <pre>${esc(text)}</pre>
-       <a class="btn btn-primary" href="${mail}">Αποστολή παραγγελίας</a>`;
+  panel.innerHTML = `<h3>${sent ? "Η διεύθυνση καταχωρήθηκε" : "Ένα βήμα ακόμη"}</h3>
+    <p>${sent
+      ? `Ευχαριστούμε, ${esc(data.fname.split(" ")[0])}. Ολοκληρώστε την πληρωμή με κάρτα και θα λάβετε επιβεβαίωση στο ${esc(data.email)}.`
+      : "Η παραγγελία σας είναι έτοιμη. Ολοκληρώστε την πληρωμή με κάρτα για να φύγει το δέμα."}</p>
+    <pre>${esc(text)}</pre>
+    ${payBtn}
+    ${sent ? "" : `<p style="margin-top:12px;font-size:.88rem"><a href="${mail}">Ή στείλτε την παραγγελία με email</a></p>`}`;
   const btn = $("#submitBtn");
   if (btn) btn.remove();
   form.replaceWith(panel);
   panel.focus();
   panel.scrollIntoView({ behavior: "smooth", block: "center" });
+  panel.querySelectorAll("[data-track]").forEach((el) => el.addEventListener("click", () => track(el.dataset.track)));
 }
 
 render();
