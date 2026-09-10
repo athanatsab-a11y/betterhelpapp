@@ -129,11 +129,9 @@ section{padding-block:clamp(48px,6.5vw,88px)}
 .hero-badges{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:26px;padding-top:22px;border-top:1px solid rgba(246,239,233,.14)}
 .badge{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;color:var(--on-night-2);background:rgba(246,239,233,.07);border:1px solid rgba(246,239,233,.12);padding:7px 12px;border-radius:999px}
 .badge svg{color:#3FD48A;flex:none}
-.ball-stage{position:relative;display:grid;place-items:center}
-.ball-stage figcaption{position:absolute;bottom:-6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--on-night-2)}
 @media (max-width:900px){
   .hero-grid{grid-template-columns:1fr;gap:18px}
-  .ball-stage{order:-1;max-width:230px;margin-inline:auto}
+  .gallery{order:-1;max-width:300px}
   .hero h1{font-size:clamp(2rem,7.4vw,2.6rem)}
   .hero-sub{margin-bottom:16px}
   .ticks{margin-bottom:18px;font-size:.95rem}
@@ -141,6 +139,19 @@ section{padding-block:clamp(48px,6.5vw,88px)}
   .hero-badges{margin-top:20px;padding-top:18px}
 }
 @media (max-width:560px){.ann-more{display:none}.annbar{font-size:.8rem}}
+
+/* gallery προϊόντος */
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.gallery{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px;margin-inline:auto}
+.gal-stage{position:relative;aspect-ratio:1/1;border-radius:18px;padding:14px;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,rgba(244,123,32,.18),rgba(246,239,233,.04) 62%);border:1px solid rgba(246,239,233,.14)}
+.gal-stage svg,.gal-stage img{width:100%;height:100%;object-fit:contain;display:block}
+.gal-caption{font-size:.84rem;color:var(--on-night-2);text-align:center;min-height:2.2em}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.thumb{aspect-ratio:1/1;padding:6px;border-radius:11px;cursor:pointer;background:rgba(246,239,233,.05);border:1.5px solid rgba(246,239,233,.14);transition:border-color .15s ease,background .15s ease}
+.thumb:hover{border-color:rgba(246,239,233,.4)}
+.thumb[aria-pressed="true"]{border-color:var(--amber);background:rgba(255,179,2,.12)}
+.thumb svg,.thumb img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.gal-note{font-size:.75rem;line-height:1.45;color:var(--on-night-2);text-align:center;border:1px dashed rgba(246,239,233,.24);border-radius:9px;padding:7px 10px}
 
 /* proof strip */
 .proofbar{background:var(--surface);border-bottom:1px solid var(--line)}
@@ -337,41 +348,92 @@ body.sticky-on{padding-bottom:74px}
       <p class="cutoff"><span class="dot" aria-hidden="true"></span><span id="cutoffText">Αποστολή με courier σε 1–3 εργάσιμες, σε όλη την Ελλάδα.</span></p>
       <div class="hero-badges">
         <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Ασφαλής πληρωμή με κάρτα</span>
-        <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> 14 ημέρες επιστροφή</span>
-        <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Εγγύηση 5 ετών</span>
         <span class="badge"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Ελληνική εξυπηρέτηση</span>
       </div>
     </div>
-    <figure class="ball-stage" style="margin:0">
-      <svg viewBox="0 0 400 400" width="430" role="img" aria-labelledby="ballTitle">
-        <title id="ballTitle">Μπάλα πυρόσβεσης AFO, διαμέτρου 147 χιλιοστών</title>
-        <defs>
-          <radialGradient id="sphere" cx="36%" cy="28%" r="78%">
-            <stop offset="0" stop-color="#FFC24D"/><stop offset="30%" stop-color="#F4711D"/>
-            <stop offset="70%" stop-color="#D42A14"/><stop offset="100%" stop-color="#8E1109"/>
-          </radialGradient>
-          <linearGradient id="swirl" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#FFF3D0" stop-opacity=".55"/><stop offset="100%" stop-color="#FF9A3C" stop-opacity="0"/>
-          </linearGradient>
-          <clipPath id="clipBall"><circle cx="200" cy="196" r="160"/></clipPath>
-        </defs>
-        <ellipse cx="200" cy="374" rx="118" ry="16" fill="#000" opacity=".38"/>
-        <circle cx="200" cy="196" r="160" fill="url(#sphere)"/>
-        <g clip-path="url(#clipBall)">
-          <path d="M40 250C120 130 300 120 390 210 300 168 150 190 40 250Z" fill="url(#swirl)"/>
-          <path d="M52 130C150 60 300 90 372 170 280 120 150 100 52 130Z" fill="#FFE0A3" opacity=".22"/>
-          <ellipse cx="140" cy="106" rx="62" ry="34" fill="#fff" opacity=".3" transform="rotate(-26 140 106)"/>
-          <ellipse cx="272" cy="312" rx="80" ry="30" fill="#FFCF7A" opacity=".16" transform="rotate(-14 272 312)"/>
+    <div class="gallery" id="gallery">
+      <div class="gal-stage" id="galStage"></div>
+      <p class="gal-caption" id="galCaption"></p>
+      <div class="thumbs" id="galThumbs" role="group" aria-label="Όψεις προϊόντος"></div>
+      <p class="gal-note" id="galNote" hidden>Σχεδιαστικές απεικονίσεις. Αντικαταστήστε τες με φωτογραφίες του προϊόντος σας στον πίνακα <code>PHOTOS</code>.</p>
+    </div>
+
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id="sphere" cx="36%" cy="28%" r="78%">
+          <stop offset="0" stop-color="#FFC24D"/><stop offset="30%" stop-color="#F4711D"/>
+          <stop offset="70%" stop-color="#D42A14"/><stop offset="100%" stop-color="#8E1109"/>
+        </radialGradient>
+        <linearGradient id="swirl" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#FFF3D0" stop-opacity=".55"/><stop offset="100%" stop-color="#FF9A3C" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="clipBall"><circle cx="200" cy="196" r="160"/></clipPath>
+        <g id="ballArt">
+          <circle cx="200" cy="196" r="160" fill="url(#sphere)"/>
+          <g clip-path="url(#clipBall)">
+            <path d="M40 250C120 130 300 120 390 210 300 168 150 190 40 250Z" fill="url(#swirl)"/>
+            <path d="M52 130C150 60 300 90 372 170 280 120 150 100 52 130Z" fill="#FFE0A3" opacity=".22"/>
+            <ellipse cx="140" cy="106" rx="62" ry="34" fill="#fff" opacity=".3" transform="rotate(-26 140 106)"/>
+            <ellipse cx="272" cy="312" rx="80" ry="30" fill="#FFCF7A" opacity=".16" transform="rotate(-14 272 312)"/>
+          </g>
+          <g font-family="Alegreya Sans, Trebuchet MS, sans-serif" text-anchor="middle">
+            <text x="188" y="168" font-size="19" font-weight="700" fill="#FFF5E6" letter-spacing="1">Fire Extinguisher Ball</text>
+            <text x="192" y="250" font-size="88" font-weight="900" fill="#B0140B" letter-spacing="2">AFO</text>
+            <text x="196" y="286" font-size="25" font-weight="800" fill="#7E0F06" letter-spacing="2.5">AUTO FIRE OFF</text>
+          </g>
+          <path d="M283 176c9-12 6-27-2-35 3 14-6 20-11 27-6 8-4 19 4 24-3-6-1-11 9-16Z" fill="#FFD35C" transform="translate(36,-42)"/>
         </g>
-        <g font-family="Alegreya Sans, Trebuchet MS, sans-serif" text-anchor="middle">
-          <text x="188" y="168" font-size="19" font-weight="700" fill="#FFF5E6" letter-spacing="1">Fire Extinguisher Ball</text>
-          <text x="192" y="250" font-size="88" font-weight="900" fill="#B0140B" letter-spacing="2">AFO</text>
-          <text x="196" y="286" font-size="25" font-weight="800" fill="#7E0F06" letter-spacing="2.5">AUTO FIRE OFF</text>
+      </defs>
+
+      <symbol id="v-product" viewBox="0 0 400 400">
+        <ellipse cx="200" cy="374" rx="120" ry="16" fill="#000" opacity=".4"/>
+        <use href="#ballArt"/>
+      </symbol>
+
+      <symbol id="v-mount" viewBox="0 0 400 400">
+        <g stroke="#B3A49B" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M36 356h328" stroke-opacity=".5"/>
+          <rect x="126" y="236" width="148" height="112" rx="9"/>
+          <path d="M126 262h148"/>
+          <path d="M148 288h28M186 288h28M224 288h28M148 314h28M186 314h28M224 314h28" stroke="#8C7F78"/>
+          <path d="M176 196v-14M224 196v-14" stroke="#FFB302"/>
+          <path d="M158 196h84a6 6 0 0 1 6 6c0 16-20 26-48 26s-48-10-48-26a6 6 0 0 1 6-6Z" stroke="#FFB302"/>
         </g>
-        <path d="M283 176c9-12 6-27-2-35 3 14-6 20-11 27-6 8-4 19 4 24-3-6-1-11 9-16Z" fill="#FFD35C" transform="translate(36,-42)"/>
-      </svg>
-      <figcaption>Ø 147 mm · 1,3 kg · ξηρή σκόνη ABC</figcaption>
-    </figure>
+        <text x="200" y="255" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#B3A49B">ΠΙΝΑΚΑΣ</text>
+        <use href="#ballArt" transform="translate(112,20) scale(.44)"/>
+        <g stroke="#FFB302" stroke-width="2.5" fill="none" stroke-linecap="round">
+          <path d="M330 106v92M330 106l-9 12M330 106l9 12M330 198l-9-12M330 198l9-12"/>
+        </g>
+        <text x="352" y="158" font-family="IBM Plex Mono, monospace" font-size="14" fill="#FFB302">1–2 m</text>
+      </symbol>
+
+      <symbol id="v-dims" viewBox="0 0 400 400">
+        <use href="#ballArt" transform="translate(76,26) scale(.62)"/>
+        <g stroke="#F6EFE9" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-opacity=".8">
+          <path d="M101 316h198M101 306v20M299 306v20M101 316l14-7M101 316l14 7M299 316l-14-7M299 316l-14 7"/>
+        </g>
+        <text x="200" y="352" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="20" fill="#F6EFE9">Ø 147 mm</text>
+        <g transform="translate(286,44)">
+          <rect x="0" y="0" width="86" height="34" rx="17" fill="#FFB302"/>
+          <text x="43" y="23" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="16" font-weight="500" fill="#171210">1,3 kg</text>
+        </g>
+      </symbol>
+
+      <symbol id="v-pack" viewBox="0 0 400 400">
+        <g stroke="#B3A49B" stroke-width="3" fill="none" stroke-linejoin="round">
+          <path d="M104 168h216v168H104z"/>
+          <path d="M104 168l44-44h216l-44 44M320 168l44-44v168l-44 44"/>
+          <rect x="140" y="200" width="144" height="66" rx="6" stroke="#F6EFE9" stroke-opacity=".55"/>
+        </g>
+        <text x="212" y="234" text-anchor="middle" font-family="Alegreya Sans, sans-serif" font-size="30" font-weight="900" fill="#F6EFE9">AFO</text>
+        <text x="212" y="256" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#B3A49B" letter-spacing="1">AUTO FIRE OFF</text>
+        <use href="#ballArt" transform="translate(24,248) scale(.24)"/>
+        <g stroke="#FFB302" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M244 330h56a5 5 0 0 1 5 5c0 12-15 20-33 20s-33-8-33-20a5 5 0 0 1 5-5Z"/>
+          <path d="M338 316h34v46h-34zM346 330h18M346 342h12" stroke="#B3A49B"/>
+        </g>
+      </symbol>
+    </svg>
   </div>
 </section>
 
@@ -379,7 +441,6 @@ body.sticky-on{padding-bottom:74px}
   <div class="wrap">
     <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Αποστολή με courier σε 1–3 εργάσιμες</span>
     <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Πληρωμή με κάρτα, 3-D Secure</span>
-    <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Τιμολόγιο για επιχειρήσεις</span>
     <span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 8.5 6 12.5 14 4"/></svg> Οδηγίες &amp; υποστήριξη στα ελληνικά</span>
   </div>
 </div>
@@ -732,6 +793,11 @@ const PACKS = {
    { text: "...", who: "Όνομα, Πόλη", stars: 5 } */
 const REVIEWS = [];
 
+/* Φωτογραφίες προϊόντος, με τη σειρά που εμφανίζονται στο gallery.
+   Βάλτε τα αρχεία σας στον φάκελο photos/ και γράψτε εδώ { src, alt }.
+   Όπου μένει null, εμφανίζεται η αντίστοιχη σχεδιαστική απεικόνιση. */
+const PHOTOS = [null, null, null, null];
+
 /* Backend ή υπηρεσία φορμών. Όσο είναι null, η παραγγελία ετοιμάζεται ως email. */
 const ORDER_ENDPOINT = null;
 
@@ -776,6 +842,38 @@ $$("[data-track]").forEach((el) => el.addEventListener("click", () => track(el.d
       <p>«${r.text}»</p>
       <p class="who">${r.who}</p>
     </div>`).join("");
+})();
+
+/* ---------- gallery προϊόντος ---------- */
+const VIEWS = [
+  { symbol: "#v-product", caption: "Μπάλα πυρόσβεσης AFO — Ø 147 mm, 1,3 kg" },
+  { symbol: "#v-mount",   caption: "Τοποθέτηση με τη βάση, 1–2 m πάνω από τον ηλεκτρικό πίνακα" },
+  { symbol: "#v-dims",    caption: "Διαστάσεις και βάρος" },
+  { symbol: "#v-pack",    caption: "Στη συσκευασία: μπάλα, βάση τοίχου, οδηγίες στα ελληνικά" }
+];
+
+(function gallery() {
+  const stage = document.getElementById("galStage");
+  const caption = document.getElementById("galCaption");
+  const thumbs = document.getElementById("galThumbs");
+  const note = document.getElementById("galNote");
+  const media = (i, cls) => {
+    const photo = PHOTOS[i];
+    return photo && photo.src
+      ? `<img src="${photo.src}" alt="${photo.alt || VIEWS[i].caption}" loading="${i ? "lazy" : "eager"}">`
+      : `<svg viewBox="0 0 400 400" role="img" aria-label="${VIEWS[i].caption}"><use href="${VIEWS[i].symbol}"/></svg>`;
+  };
+  const show = (i) => {
+    stage.innerHTML = media(i);
+    caption.textContent = (PHOTOS[i] && PHOTOS[i].alt) || VIEWS[i].caption;
+    Array.from(thumbs.children).forEach((b, n) => b.setAttribute("aria-pressed", String(n === i)));
+  };
+  thumbs.innerHTML = VIEWS.map((v, i) =>
+    `<button type="button" class="thumb" aria-pressed="${i === 0}" aria-label="Όψη ${i + 1}: ${v.caption}">${media(i)}</button>`
+  ).join("");
+  Array.from(thumbs.children).forEach((b, i) => b.addEventListener("click", () => { show(i); track("view_photo", { index: i }); }));
+  note.hidden = PHOTOS.some((p) => p && p.src);
+  show(0);
 })();
 
 /* ---------- τιμές & σύνολα ---------- */
