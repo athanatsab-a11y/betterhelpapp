@@ -176,6 +176,43 @@ section{padding-block:clamp(48px,6.5vw,88px)}
 .stepcard p{color:var(--ink-2);font-size:.97rem}
 @media (max-width:760px){.steprow{grid-template-columns:1fr}}
 
+/* βίντεο / σχηματική απεικόνιση */
+.demo{margin:30px 0 0;max-width:760px}
+.demo-stage{position:relative;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#1B1512,#2A1D17);border:1px solid var(--line)}
+.demo-stage svg,.demo-stage video,.demo-stage iframe{width:100%;height:100%;display:block;border:0}
+.demo-stage img{width:100%;height:100%;object-fit:cover;display:block}
+.demo-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,18,16,.35);border:0;cursor:pointer;padding:0}
+.demo-play span{display:grid;place-items:center;width:74px;height:74px;border-radius:50%;background:var(--red);color:#fff;box-shadow:0 14px 30px -14px rgba(0,0,0,.8)}
+.demo-play:hover span{background:var(--red-dark)}
+.demo-bar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:12px}
+.demo-time{font-family:var(--mono);font-size:.86rem;color:var(--ember);font-variant-numeric:tabular-nums;min-width:9ch}
+.demo-replay{font:inherit;font-size:.9rem;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 14px;cursor:pointer}
+.demo-replay:hover{border-color:var(--ink-2)}
+.demo figcaption{font-size:.86rem;color:var(--ink-2);margin-inline-start:auto;text-align:end;max-width:46ch}
+@media (max-width:640px){.demo figcaption{margin-inline-start:0;text-align:start}}
+
+/* κίνηση της σχηματικής απεικόνισης */
+.anim .flame,.anim .burst,.anim .puff,.anim .ball,.anim .smoke,.anim .outlabel{transform-box:fill-box;transform-origin:50% 100%}
+.anim .burst,.anim .puff,.anim .smoke,.anim .outlabel{transform-origin:50% 50%}
+.anim .flame{transform:scale(1)}
+.anim .burst,.anim .puff,.anim .smoke,.anim .outlabel{opacity:0}
+.anim.playing .flame{animation:fl 5s ease-in-out forwards}
+.anim.playing .flame.f2{animation:fl2 5s ease-in-out forwards;animation-delay:.15s}
+.anim.playing .flame.f3{animation-delay:.3s}
+.anim.playing .ball{animation:bl 5s ease-in-out forwards}
+.anim.playing .burst{animation:br 5s ease-out forwards}
+.anim.playing .puff{animation:pf 5s ease-out forwards}
+.anim.playing .smoke{animation:sm 5s ease-out forwards}
+.anim.playing .outlabel{animation:ol 5s ease-out forwards}
+@keyframes fl{0%{transform:scale(.05);opacity:0}6%{opacity:1}28%{transform:scale(1)}48%{transform:scale(1.12)}58%{transform:scale(1)}66%{transform:scale(.18);opacity:.7}72%,100%{transform:scale(.02);opacity:0}}
+@keyframes fl2{0%{transform:scale(.05);opacity:0}6%{opacity:1}28%{transform:scale(1)}50%{transform:scale(1.45)}58%{transform:scale(1.3)}66%{transform:scale(.18);opacity:.7}72%,100%{transform:scale(.02);opacity:0}}
+@keyframes bl{0%,52%{transform:translateY(0);opacity:1}56%{transform:translateY(-3px)}60%{transform:translateY(3px);opacity:1}64%{opacity:.25}70%,100%{opacity:0}}
+@keyframes br{0%,58%{transform:scale(.2);opacity:0}60%{opacity:.95}61%{transform:scale(.3)}74%{transform:scale(9);opacity:0}100%{opacity:0}}
+@keyframes pf{0%,60%{transform:translate(0,0) scale(.4);opacity:0}63%{opacity:.85}80%{transform:translate(var(--tx),var(--ty)) scale(1.6);opacity:0}100%{opacity:0}}
+@keyframes sm{0%,72%{transform:translateY(0) scale(.6);opacity:0}78%{opacity:.5}100%{transform:translateY(-46px) scale(1.5);opacity:0}}
+@keyframes ol{0%,78%{opacity:0;transform:translateY(6px)}88%,100%{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.anim.playing *{animation:none!important}}
+
 /* comparison */
 .tablewrap{overflow-x:auto;margin-top:30px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
 table{border-collapse:collapse;width:100%;min-width:600px;font-size:.96rem}
@@ -473,6 +510,14 @@ body.sticky-on{padding-bottom:74px}
   <div class="wrap">
     <p class="eyebrow">Δευτερόλεπτο προς δευτερόλεπτο</p>
     <h2>Τρία βήματα που γίνονται χωρίς εσάς</h2>
+    <figure class="demo" id="demo">
+      <div class="demo-stage" id="demoStage"></div>
+      <div class="demo-bar">
+        <button type="button" class="demo-replay" id="demoReplay">Αναπαραγωγή</button>
+        <span class="demo-time" id="demoTime">0,0 δευτ.</span>
+        <figcaption id="demoCaption">Σχηματική απεικόνιση της ακολουθίας ενεργοποίησης — δεν είναι πραγματικό πλάνο.</figcaption>
+      </div>
+    </figure>
     <div class="steprow">
       <div class="stepcard">
         <div class="t">00,0 δευτ. — Επαφή</div>
@@ -797,6 +842,17 @@ const REVIEWS = [];
    Όπου μένει null, εμφανίζεται η αντίστοιχη σχεδιαστική απεικόνιση. */
 const PHOTOS = [null, null, null, null];
 
+/* Βίντεο προϊόντος. Βάλτε ΕΝΑ από τα δύο:
+   youtubeId: "xxxxxxxxxxx"  (το id του YouTube βίντεο) ή
+   src: "videos/afo-demo.mp4" (δικό σας αρχείο, δείτε videos/README.md).
+   Όσο και τα δύο είναι null, παίζει η κινούμενη σχηματική απεικόνιση. */
+const VIDEO = {
+  youtubeId: null,
+  src: null,
+  poster: null,
+  caption: null
+};
+
 /* Backend ή υπηρεσία φορμών. Όσο είναι null, η παραγγελία ετοιμάζεται ως email. */
 const ORDER_ENDPOINT = null;
 
@@ -841,6 +897,113 @@ $$("[data-track]").forEach((el) => el.addEventListener("click", () => track(el.d
       <p>«${r.text}»</p>
       <p class="who">${r.who}</p>
     </div>`).join("");
+})();
+
+const DEMO_SVG = `<svg class="anim" id="demoAnim" viewBox="0 0 640 400" role="img" aria-label="Σχηματική απεικόνιση: φλόγες ανεβαίνουν από ηλεκτρικό πίνακα, η μπάλα AFO ενεργοποιείται και η φωτιά σβήνει">
+  <defs>
+    <radialGradient id="glow2" cx="50%" cy="50%"><stop offset="0" stop-color="#F47B20" stop-opacity=".5"/><stop offset="100%" stop-color="#F47B20" stop-opacity="0"/></radialGradient>
+    <g id="flameArt">
+      <path d="M17 2C10 15 2 21 2 32c0 9 7 15 15 15s15-6 15-15C32 21 24 15 17 2Z" fill="#F4711D"/>
+      <path d="M17 17c-4 7-7 10-7 16 0 5 3 8 7 8s7-3 7-8c0-6-3-9-7-16Z" fill="#FFC24D"/>
+    </g>
+  </defs>
+  <circle cx="320" cy="250" r="150" fill="url(#glow2)"/>
+  <g stroke="#9A8E86" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M90 344h460"/>
+    <rect x="252" y="236" width="136" height="104" rx="9"/>
+    <path d="M252 262h136"/>
+    <path d="M274 288h24M308 288h24M342 288h24M274 314h24M308 314h24M342 314h24" stroke="#5E5550"/>
+  </g>
+  <text x="320" y="256" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#7E736C">ΠΙΝΑΚΑΣ</text>
+
+  <g transform="translate(272,180) scale(1.35)"><g class="flame f1"><use href="#flameArt"/></g></g>
+  <g transform="translate(305,158) scale(1.75)"><g class="flame f2"><use href="#flameArt"/></g></g>
+  <g transform="translate(345,182) scale(1.3)"><g class="flame f3"><use href="#flameArt"/></g></g>
+
+  <g stroke="#FFB302" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <path d="M292 118h56a5 5 0 0 1 5 5c0 12-15 20-33 20s-33-8-33-20a5 5 0 0 1 5-5Z"/>
+    <path d="M304 118v-9M336 118v-9"/>
+  </g>
+  <g class="ball"><use href="#ballArt" transform="translate(266,32) scale(.27)"/></g>
+
+  <circle class="burst" cx="320" cy="112" r="18" fill="none" stroke="#FFD35C" stroke-width="3"/>
+  <g fill="#E8DFD6">
+    <circle class="puff" cx="320" cy="112" r="6" style="--tx:-130px;--ty:40px"/>
+    <circle class="puff" cx="320" cy="112" r="5" style="--tx:-80px;--ty:110px"/>
+    <circle class="puff" cx="320" cy="112" r="7" style="--tx:-20px;--ty:140px"/>
+    <circle class="puff" cx="320" cy="112" r="5" style="--tx:60px;--ty:120px"/>
+    <circle class="puff" cx="320" cy="112" r="6" style="--tx:120px;--ty:52px"/>
+    <circle class="puff" cx="320" cy="112" r="4" style="--tx:-150px;--ty:-20px"/>
+    <circle class="puff" cx="320" cy="112" r="4" style="--tx:150px;--ty:-10px"/>
+    <circle class="puff" cx="320" cy="112" r="5" style="--tx:20px;--ty:-70px"/>
+  </g>
+  <ellipse class="smoke" cx="320" cy="220" rx="34" ry="16" fill="#8C8078" opacity=".4"/>
+  <g class="outlabel">
+    <rect x="238" y="60" width="164" height="38" rx="19" fill="#12775C"/>
+    <text x="320" y="85" text-anchor="middle" font-family="Alegreya Sans, sans-serif" font-size="19" font-weight="800" fill="#fff">Η φωτιά έσβησε</text>
+  </g>
+</svg>`;
+
+/* ---------- βίντεο / σχηματική απεικόνιση ---------- */
+(function demo() {
+  const stage = document.getElementById("demoStage");
+  const replay = document.getElementById("demoReplay");
+  const time = document.getElementById("demoTime");
+  const caption = document.getElementById("demoCaption");
+  const svg = DEMO_SVG;
+
+  if (VIDEO.youtubeId) {
+    caption.textContent = VIDEO.caption || "Βίντεο επίδειξης του προϊόντος.";
+    time.hidden = true; replay.hidden = true;
+    stage.innerHTML = `<button type="button" class="demo-play" aria-label="Αναπαραγωγή βίντεο">
+        ${VIDEO.poster ? `<img src="${VIDEO.poster}" alt="">` : ""}
+        <span><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
+      </button>`;
+    stage.querySelector(".demo-play").addEventListener("click", () => {
+      stage.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${VIDEO.youtubeId}?autoplay=1&rel=0" title="Βίντεο προϊόντος" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
+      track("play_video");
+    });
+    return;
+  }
+
+  if (VIDEO.src) {
+    caption.textContent = VIDEO.caption || "Βίντεο επίδειξης του προϊόντος.";
+    time.hidden = true; replay.hidden = true;
+    stage.innerHTML = `<video controls playsinline preload="metadata" ${VIDEO.poster ? `poster="${VIDEO.poster}"` : ""}><source src="${VIDEO.src}" type="video/mp4">Ο browser σας δεν υποστηρίζει βίντεο.</video>`;
+    stage.querySelector("video").addEventListener("play", () => track("play_video"), { once: true });
+    return;
+  }
+
+  /* χωρίς βίντεο: κινούμενη σχηματική απεικόνιση */
+  stage.innerHTML = svg;
+  const anim = document.getElementById("demoAnim");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let timer, raf;
+
+  function play() {
+    anim.classList.remove("playing");
+    void anim.offsetWidth;                    // επανεκκίνηση των animations
+    anim.classList.add("playing");
+    replay.textContent = "Ξανά";
+    const t0 = performance.now();
+    cancelAnimationFrame(raf);
+    const tick = (now) => {
+      const sec = Math.min(5, (now - t0) / 1000);
+      time.textContent = sec.toFixed(1).replace(".", ",") + " δευτ.";
+      if (sec < 5) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    clearTimeout(timer);
+    timer = setTimeout(() => { anim.classList.remove("playing"); }, 5200);
+  }
+
+  replay.addEventListener("click", () => { play(); track("play_demo"); });
+  if (!reduced && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { play(); io.disconnect(); }
+    }, { threshold: .5 });
+    io.observe(anim);
+  }
 })();
 
 /* ---------- gallery προϊόντος ---------- */
