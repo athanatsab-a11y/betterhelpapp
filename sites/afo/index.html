@@ -101,8 +101,6 @@ section{padding-block:clamp(48px,6.5vw,88px)}
 .btn-lg{font-size:1.16rem;padding:17px 32px;width:100%}
 .btn-ghost{border-color:var(--line);background:var(--surface);color:var(--ink)}
 .btn-ghost:hover{border-color:var(--ink-2)}
-.btn-outline-light{border-color:rgba(246,239,233,.32);color:var(--on-night);background:transparent}
-.btn-outline-light:hover{background:rgba(246,239,233,.1);color:var(--on-night)}
 .btn small{display:block;font-family:var(--body);font-weight:400;font-size:.78rem;opacity:.85}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.btn:hover{transform:none}}
 
@@ -242,8 +240,6 @@ textarea{min-height:70px;resize:vertical}
 .sum-total{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display);font-weight:900;font-size:1.6rem;padding-top:10px;margin-top:6px;border-top:1px solid var(--line)}
 .undersubmit{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.85rem;color:var(--ink-2);margin-top:12px;text-align:center}
 .undersubmit svg{color:var(--green);flex:none}
-.callout-phone{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:.92rem;color:var(--ink-2);text-align:center}
-.callout-phone a{font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--ink);text-decoration:none;display:block;margin-top:4px}
 .guarantee{display:grid;gap:16px}
 .gitem{display:flex;gap:13px;align-items:flex-start;background:rgba(246,239,233,.06);border:1px solid rgba(246,239,233,.13);border-radius:var(--r);padding:16px 18px}
 .gitem svg{flex:none;color:var(--amber);margin-top:3px}
@@ -334,8 +330,7 @@ body.sticky-on{padding-bottom:74px}
         <span class="save">Δωρεάν βάση τοίχου</span>
       </div>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#paraggelia" data-track="cta_hero">Παραγγελία με αντικαταβολή <span aria-hidden="true">→</span></a>
-        <a class="btn btn-outline-light" href="tel:+302100000000" data-track="call_hero">Τηλεφωνική παραγγελία</a>
+        <a class="btn btn-primary" href="#paraggelia" data-track="cta_hero">Παράγγειλε τώρα <span aria-hidden="true">→</span></a>
       </div>
       <p class="cutoff"><span class="dot" aria-hidden="true"></span><span id="cutoffText">Παραγγελίες μέχρι τις 14:00 φεύγουν αυθημερόν.</span></p>
       <div class="hero-badges">
@@ -570,7 +565,6 @@ body.sticky-on{padding-bottom:74px}
 
           <button class="btn btn-primary btn-lg" type="submit" id="submitBtn" style="margin-top:16px">Ολοκλήρωση παραγγελίας</button>
           <p class="undersubmit"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg> Χωρίς στοιχεία κάρτας. Δικαίωμα επιστροφής 14 ημερών.</p>
-          <p class="callout-phone">Προτιμάτε τηλέφωνο; Καλέστε μας Δευ–Παρ 09:00–17:00<a href="tel:+302100000000" data-track="call_form">210 000 0000</a></p>
         </form>
       </div>
 
@@ -637,7 +631,7 @@ body.sticky-on{padding-bottom:74px}
     </div>
 
     <div style="text-align:center;margin-top:38px">
-      <a class="btn btn-primary" href="#paraggelia" data-track="cta_faq">Παραγγελία με αντικαταβολή <span aria-hidden="true">→</span></a>
+      <a class="btn btn-primary" href="#paraggelia" data-track="cta_faq">Παράγγειλε τώρα <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
@@ -1033,12 +1027,9 @@ function finish(data, text, sent) {
        <p>Ευχαριστούμε, ${esc(data.fname.split(" ")[0])}. Θα σας καλέσουμε στο ${esc(data.phone)} για επιβεβαίωση πριν φύγει το δέμα.</p>
        <pre>${esc(text)}</pre>`
     : `<h3>Ένα βήμα ακόμη</h3>
-       <p>Η παραγγελία σας είναι έτοιμη. Στείλτε την με ένα κλικ ή δώστε την στο τηλέφωνο — ό,τι σας βολεύει.</p>
+       <p>Η παραγγελία σας είναι έτοιμη. Στείλτε την με ένα κλικ και θα σας καλέσουμε για επιβεβαίωση.</p>
        <pre>${esc(text)}</pre>
-       <div style="display:flex;flex-wrap:wrap;gap:12px">
-         <a class="btn btn-primary" href="${mail}">Αποστολή παραγγελίας</a>
-         <a class="btn btn-ghost" href="tel:${SHOP.phone}">Κλήση ${SHOP.phoneLabel}</a>
-       </div>`;
+       <a class="btn btn-primary" href="${mail}">Αποστολή παραγγελίας</a>`;
   const btn = $("#submitBtn");
   if (btn) btn.remove();
   form.replaceWith(panel);
