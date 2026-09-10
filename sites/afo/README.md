@@ -72,3 +72,66 @@ Cloudflare Pages ή σε απλό cPanel hosting μέσω FTP.
 
 Αν ο πάροχός σας δίνει δυναμικό ποσό ανά παραγγελία, περάστε το σύνολο στο URL από τη
 `finish()` (π.χ. `?amount=${s2.total}`) ή δημιουργήστε session πληρωμής από το backend σας.
+
+## Πού βλέπω τις παραγγελίες
+
+Με `ORDERS.endpoint = null` **δεν καταγράφεται τίποτα**: ο πελάτης βλέπει έτοιμο email που πρέπει
+να στείλει ο ίδιος. Καλό για δοκιμή, όχι για πραγματικές πωλήσεις. Διαλέξτε ένα από τα παρακάτω.
+
+### Α. Web3Forms — 3 λεπτά, δωρεάν, χωρίς λογαριασμό
+
+1. Στο `web3forms.com` δίνετε το email σας και παίρνετε ένα **access key** στο inbox.
+2. Στο `index.html`:
+
+```js
+const ORDERS = {
+  endpoint: "https://api.web3forms.com/submit",
+  extra: {
+    access_key: "ΤΟ-ΚΛΕΙΔΙ-ΣΑΣ",
+    subject: "Νέα παραγγελία AFO",
+    from_name: "AFO Ελλάδα"
+  },
+  contentType: "application/json"
+};
+```
+
+Κάθε παραγγελία έρχεται email με όλα τα πεδία και τον κωδικό παραγγελίας. Δωρεάν έως 250/μήνα.
+
+### Β. Formspree — παραγγελίες σε email + πίνακα
+
+1. Λογαριασμός στο `formspree.io`, νέα φόρμα, αντιγράφετε το endpoint (`https://formspree.io/f/xxxxxxx`).
+2. `ORDERS = { endpoint: "https://formspree.io/f/xxxxxxx", extra: {}, contentType: "application/json" }`.
+
+Οι υποβολές μένουν και σε λίστα στο dashboard τους, με εξαγωγή σε CSV. Δωρεάν έως 50/μήνα.
+
+### Γ. Google Sheets — δωρεάν, απεριόριστο, οι παραγγελίες σε φύλλο
+
+1. Νέο Google Sheet. **Extensions → Apps Script**, επικολλάτε:
+
+```js
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  var d = JSON.parse(e.postData.contents);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Ημερομηνία", "Κωδικός", "Ονοματεπώνυμο", "Τηλέφωνο", "Email",
+                     "Διεύθυνση", "ΤΚ", "Πόλη", "Πακέτο", "Σύνολο", "ΑΦΜ", "Σημείωση"]);
+  }
+  sheet.appendRow([new Date(), d.order_code, d.fname, d.phone, d.email,
+                   d.address, d.zip, d.city, d.paketo, d.synolo, d.vat, d.notes]);
+  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+2. **Deploy → New deployment → Web app**, Execute as: *Me*, Who has access: **Anyone**. Αντιγράφετε το URL `/exec`.
+3. `ORDERS = { endpoint: "ΤΟ-URL-/exec", extra: {}, contentType: "text/plain" }`
+   — το `text/plain` είναι απαραίτητο, αλλιώς ο browser κάνει preflight που το Apps Script δεν απαντά.
+4. Στο Sheet: **Tools → Notification settings → Notify me immediately** για ειδοποίηση σε κάθε παραγγελία.
+
+### Και στις τρεις περιπτώσεις
+
+- Ο **πάροχος πληρωμών** (Stripe/Viva) παραμένει η αλήθεια για τα χρήματα: εκεί βλέπετε ποιος
+  πλήρωσε πραγματικά. Το `ORDERS` σας δίνει τη διεύθυνση και όποιον εγκατέλειψε στο βήμα της κάρτας.
+- Ο **κωδικός παραγγελίας** (`AFO-ΗΗΜΜΕΕ-XXXX`) εμφανίζεται στον πελάτη και ταξιδεύει με την
+  παραγγελία, ώστε να ταιριάζετε πληρωμή με διεύθυνση.
+- Αν το αίτημα αποτύχει, ο πελάτης βλέπει μήνυμα με το email σας και δεν χάνει τα στοιχεία του.

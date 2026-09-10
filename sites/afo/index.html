@@ -826,8 +826,14 @@ const VIDEO = {
   caption: null
 };
 
-/* Backend ή υπηρεσία φορμών. Όσο είναι null, η παραγγελία ετοιμάζεται ως email. */
-const ORDER_ENDPOINT = null;
+/* Πού καταλήγουν οι παραγγελίες. Όσο το endpoint είναι null, η παραγγελία
+   ετοιμάζεται ως email που στέλνει ο ίδιος ο πελάτης — κατάλληλο μόνο για δοκιμή.
+   Οδηγίες βήμα-βήμα (Web3Forms, Formspree, Google Sheets): README.md → «Πού βλέπω τις παραγγελίες». */
+const ORDERS = {
+  endpoint: null,
+  extra: {},                     // π.χ. { access_key: "...", subject: "Νέα παραγγελία AFO" }
+  contentType: "application/json" // "text/plain" για Google Apps Script
+};
 
 /* ================================================================== */
 
@@ -1037,7 +1043,7 @@ $$(".tier").forEach((tier) => {
     render();
     track("select_item", { pack: tier.dataset.pack });
     $("#paraggelia").scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => { const f = $("#fname"); if (!f.value) f.focus({ preventScroll: true }); }, 500);
+    setTimeout(() => { const f = $("#fname"); if (f && !f.value) f.focus({ preventScroll: true }); }, 500);
   });
 });
 form.addEventListener("input", render);
@@ -1143,9 +1149,18 @@ form.addEventListener("focusin", () => {
 })();
 
 /* ---------- υποβολή ---------- */
-function orderText(data, s) {
+function orderCode() {
+  const d = new Date();
+  const day = [d.getFullYear() % 100, d.getMonth() + 1, d.getDate()]
+    .map((n) => String(n).padStart(2, "0")).join("");
+  const rnd = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `AFO-${day}-${rnd}`;
+}
+
+function orderText(data, s, code) {
   return [
     "ΝΕΑ ΠΑΡΑΓΓΕΛΙΑ — " + SHOP.name,
+    "Κωδικός: " + code,
     "",
     "Προϊόν: Μπάλα πυρόσβεσης AFO",
     `Πακέτο: ${s.pack.label} × ${s.bundles} (σύνολο ${s.units} μπάλες)`,
@@ -1176,34 +1191,43 @@ form.addEventListener("submit", async (e) => {
   }
   const data = Object.fromEntries(new FormData(form).entries());
   const s = state();
-  const text = orderText(data, s);
+  const code = orderCode();
+  const text = orderText(data, s, code);
   track("purchase_intent", { value: s.total, currency: "EUR", items: s.units, payment: "card" });
 
-  if (ORDER_ENDPOINT) {
+  if (ORDERS.endpoint) {
     const btn = $("#submitBtn");
     btn.disabled = true;
-    btn.textContent = "Αποστολή…";
+    btn.textContent = "Καταχώρηση…";
     try {
-      const res = await fetch(ORDER_ENDPOINT, {
+      const res = await fetch(ORDERS.endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, summary: text, total: s.total })
+        headers: { "Content-Type": ORDERS.contentType, "Accept": "application/json" },
+        body: JSON.stringify({
+          ...ORDERS.extra,
+          order_code: code,
+          ...data,
+          paketo: `${s.pack.label} × ${s.bundles}`,
+          synolo: eur.format(s.total),
+          summary: text,
+          total: s.total
+        })
       });
       if (!res.ok) throw new Error(res.status);
-      finish(data, text, true);
+      finish(data, text, true, code);
       return;
     } catch (err) {
       btn.disabled = false;
-      btn.textContent = "Ολοκλήρωση παραγγελίας";
+      btn.textContent = "Συνέχεια στην πληρωμή";
       form.querySelector('[data-err="email"]').textContent =
         "Η καταχώρηση δεν πέρασε. Δοκιμάστε ξανά ή στείλτε μας email στο " + SHOP.email + ".";
       return;
     }
   }
-  finish(data, text, false);
+  finish(data, text, false, code);
 });
 
-function finish(data, text, sent) {
+function finish(data, text, sent, code) {
   try { localStorage.removeItem(STORE_KEY); } catch (e) {}
   const s2 = state();
   const mail = `mailto:${SHOP.email}?subject=${encodeURIComponent("Παραγγελία AFO — " + data.fname)}&body=${encodeURIComponent(text)}`;
@@ -1214,6 +1238,7 @@ function finish(data, text, sent) {
   panel.className = "done";
   panel.tabIndex = -1;
   panel.innerHTML = `<h3>${sent ? "Η διεύθυνση καταχωρήθηκε" : "Ένα βήμα ακόμη"}</h3>
+    <p style="font-family:var(--mono);font-size:.9rem;margin-bottom:6px">Κωδικός παραγγελίας: <b>${esc(code)}</b></p>
     <p>${sent
       ? `Ευχαριστούμε, ${esc(data.fname.split(" ")[0])}. Ολοκληρώστε την πληρωμή με κάρτα και θα λάβετε επιβεβαίωση στο ${esc(data.email)}.`
       : "Η παραγγελία σας είναι έτοιμη. Ολοκληρώστε την πληρωμή με κάρτα για να φύγει το δέμα."}</p>
